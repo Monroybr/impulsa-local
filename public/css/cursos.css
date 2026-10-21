@@ -1,0 +1,608 @@
+
+/* =========================================
+   IMPULSA LOCAL - CURSOS DISPONIBLES
+========================================= */
+
+:root {
+    --azul: #1b3959;
+    --azul-oscuro: #102b49;
+    --amarillo: #ffbf00;
+    --fondo: #f8f7f5;
+    --blanco: #ffffff;
+    --texto: #173653;
+    --texto-secundario: #68758a;
+    --borde: #e1e5eb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+}
+
+main {
+    flex: 1;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    font: inherit;
+}
+
+a {
+    text-decoration: none;
+}
+
+.contenedor {
+    width: min(100% - 40px, 1120px);
+    margin-inline: auto;
+}
+
+/* =========================================
+   ENCABEZADO
+========================================= */
+
+.encabezado {
+    background: var(--blanco);
+    border-bottom: 1px solid #e8e8e8;
+    position: relative;
+    z-index: 10;
+}
+
+.encabezado-contenido {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--azul);
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight: 700;
+    font-size: 19px;
+    white-space: nowrap;
+}
+
+.logo-icono {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 31px;
+    height: 31px;
+    border-radius: 8px;
+    background: var(--azul);
+    color: var(--amarillo);
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.menu-principal {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.menu-principal > a {
+    color: #647086;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.menu-principal > a:hover {
+    color: var(--azul);
+}
+
+.menu-principal > a.activo {
+    color: var(--azul);
+    position: relative;
+}
+
+.menu-principal > a.activo::after {
+    content: "";
+    position: absolute;
+    bottom: -9px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--amarillo);
+}
+
+.menu-principal > a.boton-acceso {
+    background: var(--azul);
+    color: white;
+    padding: 12px 21px;
+    border-radius: 30px;
+    transition: background 0.2s ease;
+}
+
+.menu-principal > a.boton-acceso:hover {
+    background: var(--azul-oscuro);
+}
+
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    color: var(--azul);
+    font-size: 25px;
+    cursor: pointer;
+}
+
+/* =========================================
+   BANNER DE CURSOS
+========================================= */
+
+.banner-cursos {
+    background: var(--azul);
+    color: white;
+    text-align: center;
+    padding: 72px 20px 76px;
+}
+
+.banner-cursos .contenedor {
+    max-width: 700px;
+}
+
+.etiqueta-banner {
+    display: block;
+    color: var(--amarillo);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.3px;
+    margin-bottom: 17px;
+}
+
+.banner-cursos h1 {
+    margin: 0 0 14px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(32px, 4vw, 45px);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.banner-cursos p {
+    max-width: 540px;
+    margin: 0 auto;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #e0eafa;
+}
+
+/* =========================================
+   SECCIÓN DE CURSOS
+========================================= */
+
+.seccion-cursos {
+    padding: 42px 20px 65px;
+}
+
+.contenedor-cursos {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* =========================================
+   FILTROS
+========================================= */
+
+.filtros {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 30px;
+}
+
+.filtro {
+    border: 1px solid var(--borde);
+    border-radius: 25px;
+    background: white;
+    color: var(--azul);
+    padding: 10px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.filtro:hover {
+    transform: translateY(-2px);
+    border-color: var(--azul);
+}
+
+.filtro.activo {
+    background: var(--azul);
+    color: white;
+    border-color: var(--azul);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.12);
+}
+
+.filtro:focus-visible,
+.menu-toggle:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--amarillo);
+    outline-offset: 3px;
+}
+
+/* =========================================
+   CUADRÍCULA DE CURSOS
+========================================= */
+
+.cuadricula-cursos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+}
+
+/* =========================================
+   TARJETAS
+========================================= */
+
+.tarjeta-curso {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: white;
+    border: 1px solid #e3e5e8;
+    border-radius: 15px;
+    padding: 22px 20px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.08);
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+.tarjeta-curso:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(27, 57, 89, 0.12);
+    border-color: #cbd6e5;
+}
+
+.tarjeta-curso[hidden] {
+    display: none !important;
+}
+
+/* TÍTULO Y ESTADO */
+
+.tarjeta-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 13px;
+}
+
+.tarjeta-encabezado h2 {
+    margin: 0;
+    color: var(--azul-oscuro);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.estado {
+    display: inline-block;
+    flex-shrink: 0;
+    border-radius: 20px;
+    padding: 4px 9px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.estado.activo {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.estado.inactivo {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.estado.finalizado {
+    background: #f1f3f5;
+    color: #64748b;
+}
+
+/* CATEGORÍA */
+
+.categoria-curso {
+    display: block;
+    width: 100%;
+    background: #dceafe;
+    color: #2563eb;
+    border-radius: 15px;
+    padding: 4px 11px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 13px;
+}
+
+/* DESCRIPCIÓN */
+
+.descripcion {
+    margin: 0 0 20px;
+    color: var(--texto-secundario);
+    font-size: 12px;
+    line-height: 1.8;
+    flex: 1;
+}
+
+/* INFORMACIÓN DEL CURSO */
+
+.detalles-curso {
+    border-top: 1px solid #edf0f3;
+    padding-top: 12px;
+}
+
+.detalles-curso > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    color: var(--texto-secundario);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.detalles-curso > div:last-child {
+    margin-bottom: 0;
+}
+
+.detalles-curso > div span:last-child {
+    text-align: right;
+    color: #53667f;
+}
+
+/* =========================================
+   SIN RESULTADOS
+========================================= */
+
+.sin-resultados {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--texto-secundario);
+    font-size: 14px;
+}
+
+.sin-resultados[hidden] {
+    display: none;
+}
+
+/* =========================================
+   PIE DE PÁGINA
+========================================= */
+
+.pie-pagina {
+    background: var(--azul-oscuro);
+    color: white;
+    padding: 27px 0;
+}
+
+.pie-contenido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.logo-footer {
+    color: white;
+    font-size: 16px;
+}
+
+.logo-footer .logo-icono {
+    background: var(--amarillo);
+    color: var(--azul-oscuro);
+}
+
+.pie-contenido p {
+    margin: 0;
+    text-align: center;
+    font-size: 11px;
+    color: #e1e9f4;
+}
+
+.enlaces-footer {
+    display: flex;
+    gap: 20px;
+}
+
+.enlaces-footer a {
+    color: white;
+    font-size: 11px;
+    transition: color 0.2s ease;
+}
+
+.enlaces-footer a:hover {
+    color: var(--amarillo);
+}
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+    .contenedor-cursos {
+        max-width: 660px;
+    }
+
+    .cuadricula-cursos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .banner-cursos {
+        padding: 60px 20px;
+    }
+
+    .menu-principal {
+        gap: 18px;
+    }
+
+    .pie-contenido {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* =========================================
+   TELÉFONO
+========================================= */
+
+@media (max-width: 600px) {
+
+    .contenedor {
+        width: min(100% - 30px, 1120px);
+    }
+
+    .encabezado-contenido {
+        min-height: 64px;
+    }
+
+    .logo {
+        font-size: 17px;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .menu-principal {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 12px 20px 20px;
+        border-top: 1px solid var(--borde);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .menu-principal.abierto {
+        display: flex;
+    }
+
+    .menu-principal > a {
+        padding: 14px 10px;
+        font-size: 14px;
+    }
+
+    .menu-principal > a.activo::after {
+        bottom: 6px;
+        left: 10px;
+        width: 80px;
+    }
+
+    .menu-principal > a.boton-acceso {
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    .banner-cursos {
+        padding: 55px 18px 60px;
+    }
+
+    .banner-cursos h1 {
+        font-size: 34px;
+    }
+
+    .banner-cursos p {
+        font-size: 13px;
+    }
+
+    .etiqueta-banner {
+        font-size: 10px;
+    }
+
+    .seccion-cursos {
+        padding: 30px 16px 50px;
+    }
+
+    .contenedor-cursos {
+        max-width: 440px;
+    }
+
+    .filtros {
+        gap: 8px;
+        margin-bottom: 25px;
+    }
+
+    .filtro {
+        padding: 9px 14px;
+        font-size: 11px;
+    }
+
+    .cuadricula-cursos {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .tarjeta-curso {
+        padding: 21px 19px;
+    }
+
+    .tarjeta-encabezado h2 {
+        font-size: 15px;
+    }
+
+    .pie-contenido {
+        flex-direction: column;
+        gap: 18px;
+        text-align: center;
+    }
+
+    .enlaces-footer {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+/* =========================================
+   ACCESIBILIDAD
+========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

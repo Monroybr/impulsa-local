@@ -1,0 +1,733 @@
+
+:root {
+    --azul: #1b3959;
+    --azul-oscuro: #102b49;
+    --amarillo: #ffb900;
+    --fondo: #f8f7f5;
+    --texto: #1b3959;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: var(--texto);
+    background: var(--fondo);
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+.contenedor {
+    width: min(100% - 40px, 1160px);
+    margin: 0 auto;
+}
+
+/* ========================================
+   ENCABEZADO
+======================================== */
+
+.encabezado {
+    background: #fff;
+    position: relative;
+    z-index: 20;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.navegacion {
+    min-height: 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--azul);
+    font-family: Georgia, serif;
+    font-weight: bold;
+    font-size: 18px;
+    white-space: nowrap;
+}
+
+.marca-icono {
+    width: 30px;
+    height: 30px;
+    display: inline-grid;
+    place-items: center;
+    background: var(--azul);
+    color: var(--amarillo);
+    border-radius: 8px;
+    font: bold 12px Arial, sans-serif;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.menu a {
+    color: var(--azul);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.menu a.activo {
+    border-bottom: 2px solid var(--amarillo);
+    padding-bottom: 7px;
+}
+
+.menu .boton-login {
+    color: #fff;
+    background: var(--azul);
+    padding: 12px 22px;
+    border-radius: 30px;
+}
+
+.menu-toggle {
+    display: none;
+    border: 0;
+    background: transparent;
+    color: var(--azul);
+    font-size: 28px;
+}
+
+/* ========================================
+   BANNER DE IMÁGENES
+======================================== */
+
+.banner {
+    position: relative;
+    height: 560px;
+    overflow: hidden;
+    background: var(--azul);
+}
+
+.diapositiva {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity 0.65s ease,
+        visibility 0.65s ease;
+}
+
+.diapositiva::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(20, 49, 79, 0.93) 0%,
+        rgba(20, 49, 79, 0.75) 38%,
+        rgba(20, 49, 79, 0.18) 100%
+    );
+}
+
+.diapositiva.activa {
+    opacity: 1;
+    visibility: visible;
+}
+
+.banner-contenido {
+    position: relative;
+    z-index: 2;
+    color: white;
+    padding: 40px 0;
+}
+
+.etiqueta {
+    color: #ff9600;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1.4px;
+}
+
+.banner h1 {
+    font-family: Georgia, serif;
+    font-size: clamp(32px, 3.4vw, 48px);
+    line-height: 1.17;
+    max-width: 600px;
+    margin: 22px 0;
+}
+
+.banner p {
+    max-width: 580px;
+    font-size: 18px;
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+.acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* ========================================
+   BOTONES
+======================================== */
+
+.boton {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px 27px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: bold;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease;
+}
+
+.boton:hover {
+    transform: translateY(-2px);
+}
+
+.amarillo {
+    background: var(--amarillo);
+    color: var(--azul-oscuro);
+}
+
+.transparente {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* ========================================
+   FLECHAS DEL BANNER
+======================================== */
+
+.flecha {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    color: white;
+    font-size: 29px;
+    transition: background 0.3s ease;
+}
+
+.flecha:hover {
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.anterior {
+    left: 16px;
+}
+
+.siguiente {
+    right: 16px;
+}
+
+/* ========================================
+   INDICADORES DEL BANNER
+======================================== */
+
+.indicadores {
+    position: absolute;
+    z-index: 5;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.punto {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: 0;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.65);
+    transition:
+        width 0.3s ease,
+        background 0.3s ease;
+}
+
+.punto.activo {
+    width: 26px;
+    background: var(--amarillo);
+}
+
+/* ========================================
+   ESTADÍSTICAS
+======================================== */
+
+.estadisticas {
+    background: var(--azul);
+    color: white;
+    padding: 34px 0;
+}
+
+.estadisticas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+.estadisticas strong {
+    display: block;
+    color: var(--amarillo);
+    font-size: 35px;
+    margin-bottom: 5px;
+}
+
+.estadisticas span {
+    font-size: 13px;
+}
+
+/* ========================================
+   SECCIÓN NUESTRA MISIÓN
+======================================== */
+
+.mision {
+    padding: 70px 0 80px;
+}
+
+.titulo-seccion {
+    text-align: center;
+    margin: 0 auto 48px;
+}
+
+.titulo-seccion h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(26px, 3vw, 36px);
+    margin: 15px 0 20px;
+}
+
+.titulo-seccion p {
+    max-width: 760px;
+    margin: 0 auto;
+    line-height: 1.9;
+    font-size: 15px;
+}
+
+/* ========================================
+   CONTENEDOR DE TARJETAS
+======================================== */
+
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+}
+
+/* ========================================
+   TARJETAS CON ANIMACIÓN
+======================================== */
+
+.tarjeta {
+    background: white;
+    border: 1px solid #e4e4e4;
+    border-radius: 16px;
+    text-align: center;
+    padding: 32px 22px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+
+    transition:
+        transform 0.6s ease,
+        opacity 0.6s ease,
+        box-shadow 0.35s ease,
+        border-color 0.35s ease;
+}
+
+/* Movimiento al pasar el mouse */
+
+.tarjeta:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 18px 35px rgba(27, 57, 89, 0.18);
+    border-color: var(--amarillo);
+}
+
+/* Animación del icono */
+
+.tarjeta-icono {
+    display: inline-block;
+    font-size: 29px;
+    transition: transform 0.35s ease;
+}
+
+.tarjeta:hover .tarjeta-icono {
+    transform: scale(1.2);
+}
+
+/* ========================================
+   APARICIÓN AL DESPLAZARSE
+======================================== */
+
+/* Estado inicial */
+
+.tarjeta.animar-entrada {
+    opacity: 0;
+    transform: translateY(35px);
+}
+
+/* Estado visible */
+
+.tarjeta.animar-entrada.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Movimiento al pasar el mouse
+   después de aparecer */
+
+.tarjeta.animar-entrada.visible:hover {
+    transform: translateY(-12px);
+}
+
+/* ========================================
+   TESTIMONIOS
+======================================== */
+
+.testimonios {
+    background: white;
+    padding: 70px 0 80px;
+}
+
+.testimonios-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 960px;
+    margin: auto;
+}
+
+.testimonio {
+    background: var(--fondo);
+    padding: 25px;
+    border-radius: 16px;
+}
+
+.testimonio > p {
+    min-height: 100px;
+    font-size: 14px;
+    line-height: 1.8;
+    margin: 0 0 15px;
+}
+
+.persona {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    background: var(--azul);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.persona strong,
+.persona small {
+    display: block;
+}
+
+.persona strong {
+    font-size: 13px;
+}
+
+.persona small {
+    font-size: 11px;
+    color: #8490a3;
+    margin-top: 5px;
+}
+
+/* ========================================
+   REGISTRO
+======================================== */
+
+.registro-cta {
+    background: var(--azul);
+    color: white;
+    text-align: center;
+    padding: 65px 20px;
+}
+
+.registro-cta h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(27px, 3vw, 38px);
+    margin: 0 0 20px;
+}
+
+.registro-cta p {
+    font-size: 15px;
+    margin-bottom: 30px;
+}
+
+.registro-cta .boton {
+    min-width: 185px;
+}
+
+/* ========================================
+   PIE DE PÁGINA
+======================================== */
+
+.pie {
+    background: var(--azul-oscuro);
+    color: white;
+    padding: 30px 0;
+}
+
+.pie-contenido {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.pie .marca {
+    color: white;
+}
+
+.pie p {
+    font-size: 12px;
+    text-align: center;
+}
+
+.pie-enlaces {
+    display: flex;
+    gap: 20px;
+}
+
+.pie-enlaces a {
+    color: white;
+    font-size: 12px;
+}
+
+/* ========================================
+   RESPONSIVE PARA TABLET
+======================================== */
+
+@media (max-width: 1023px) {
+
+    .tarjetas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .banner {
+        height: 510px;
+    }
+
+    .banner-contenido {
+        padding: 40px 25px;
+    }
+
+    .testimonios-grid {
+        gap: 15px;
+    }
+
+    .pie-contenido {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   RESPONSIVE PARA TELÉFONO
+======================================== */
+
+@media (max-width: 767px) {
+
+    .contenedor {
+        width: min(100% - 32px, 1160px);
+    }
+
+    /* Menú responsive */
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .menu {
+        display: none;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 22px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 22px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .menu.abierto {
+        display: flex;
+    }
+
+    .menu .boton-login {
+        text-align: center;
+    }
+
+    /* Banner */
+
+    .banner {
+        height: 560px;
+    }
+
+    .diapositiva {
+        background-position: center;
+    }
+
+    .diapositiva::before {
+        background: linear-gradient(
+            90deg,
+            rgba(20, 49, 79, 0.94),
+            rgba(20, 49, 79, 0.65)
+        );
+    }
+
+    .banner-contenido {
+        padding: 40px 22px;
+    }
+
+    .banner h1 {
+        font-size: 34px;
+    }
+
+    .banner p {
+        font-size: 15px;
+    }
+
+    /* Flechas */
+
+    .flecha {
+        width: 32px;
+        height: 32px;
+        font-size: 23px;
+    }
+
+    .anterior {
+        left: 5px;
+    }
+
+    .siguiente {
+        right: 5px;
+    }
+
+    /* Estadísticas */
+
+    .estadisticas-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px 15px;
+    }
+
+    .estadisticas strong {
+        font-size: 30px;
+    }
+
+    /* Secciones */
+
+    .mision,
+    .testimonios {
+        padding: 55px 0;
+    }
+
+    /* Tarjetas */
+
+    .tarjetas,
+    .testimonios-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .testimonio > p {
+        min-height: auto;
+    }
+
+    /* Pie de página */
+
+    .pie-contenido {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .pie-enlaces {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+/* ========================================
+   TELÉFONOS PEQUEÑOS
+======================================== */
+
+@media (max-width: 380px) {
+
+    .banner h1 {
+        font-size: 29px;
+    }
+
+    .acciones {
+        gap: 10px;
+    }
+
+    .boton {
+        padding: 11px 18px;
+    }
+}
+
+/* ========================================
+   ACCESIBILIDAD
+   REDUCCIÓN DE MOVIMIENTO
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+
+    .tarjeta.animar-entrada {
+        opacity: 1;
+        transform: none;
+    }
+}

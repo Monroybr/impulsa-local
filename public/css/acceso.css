@@ -1,0 +1,388 @@
+
+/* CONFIGURACIÓN GENERAL */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #1b3959;
+    background: #f8f7f5;
+}
+
+/* ENCABEZADO */
+.encabezado {
+    background: #ffffff;
+    padding: 15px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    min-height: 70px;
+}
+
+.logo {
+    font-weight: bold;
+    color: #1b3959;
+    text-decoration: none;
+    font-size: 19px;
+    white-space: nowrap;
+}
+
+.logo span {
+    display: inline-block;
+    background: #1b3959;
+    color: #ffbf00;
+    border-radius: 8px;
+    padding: 9px;
+    margin-right: 6px;
+}
+
+nav {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+}
+
+nav a {
+    color: #1b3959;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #28609c;
+}
+
+.nav-acceso {
+    background: #1b3959;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+}
+
+.nav-acceso:hover {
+    background: #28609c;
+    color: white;
+}
+
+/* FONDO DE ACCESO */
+.zona-acceso {
+    background: linear-gradient(120deg, #1b3959, #28609c);
+    min-height: calc(100vh - 70px);
+    padding: 55px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedor-acceso {
+    width: 100%;
+    max-width: 480px;
+}
+
+/* SELECCIÓN DE ROLES */
+.roles-demo {
+    background: rgba(255, 255, 255, 0.13);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.roles-demo h3 {
+    font-size: 12px;
+    margin: 0 0 12px;
+}
+
+.roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.rol {
+    border: 0;
+    border-radius: 7px;
+    padding: 9px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.rol:hover,
+.rol.seleccionado {
+    background: #ffbf00;
+    color: #1b3959;
+    transform: translateY(-2px);
+}
+
+.descripcion-rol {
+    margin: 12px 0 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #e3ebf5;
+}
+
+/* TARJETA PRINCIPAL */
+.tarjeta-acceso {
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* PESTAÑAS */
+.pestanas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.pestana {
+    padding: 17px 10px;
+    border: 0;
+    background: #f5f6f8;
+    color: #1b3959;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease;
+}
+
+.pestana.activa {
+    background: #1b3959;
+    color: white;
+}
+
+.pestana:not(.activa):hover {
+    background: #e9edf3;
+}
+
+/* FORMULARIOS */
+.formulario {
+    padding: 30px;
+    animation: aparecer 0.35s ease;
+}
+
+.formulario[hidden] {
+    display: none;
+}
+
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TÍTULOS */
+.formulario h1 {
+    text-align: center;
+    font-family: Georgia, serif;
+    font-size: 26px;
+    margin: 0 0 8px;
+    color: #1b3959;
+}
+
+.subtitulo {
+    text-align: center;
+    color: #8993a6;
+    font-size: 13px;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+/* ETIQUETAS */
+.formulario label {
+    display: block;
+    margin: 14px 0 7px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #1b3959;
+}
+
+/* CAMPOS */
+.formulario input,
+.formulario select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dce1e8;
+    border-radius: 11px;
+    background: #f8f9fb;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #1b3959;
+    transition: border-color 0.3s ease;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+    outline: 2px solid #28609c;
+    outline-offset: 1px;
+    background: white;
+}
+
+.formulario input::placeholder {
+    color: #9aa5b5;
+}
+
+.formulario select {
+    cursor: pointer;
+}
+
+/* RECUPERAR CONTRASEÑA */
+.olvido {
+    display: block;
+    margin: 15px 0 20px;
+    text-align: right;
+    font-size: 12px;
+    color: #1557b0;
+    text-decoration: none;
+}
+
+.olvido:hover {
+    text-decoration: underline;
+}
+
+/* BOTÓN PRINCIPAL */
+.boton-principal {
+    width: 100%;
+    border: none;
+    background: #1b3959;
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 16px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.boton-principal:hover {
+    background: #28609c;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(27, 57, 89, 0.2);
+}
+
+.boton-principal:active {
+    transform: translateY(0);
+}
+
+/* ENLACES INFERIORES */
+.pie-formulario {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 22px;
+    color: #8993a6;
+}
+
+.pie-formulario button {
+    border: none;
+    background: none;
+    color: #1557b0;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.pie-formulario button:hover {
+    text-decoration: underline;
+}
+
+/* MENSAJES */
+.mensaje {
+    margin: 15px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: white;
+    line-height: 1.5;
+}
+
+.mensaje:empty {
+    display: none;
+}
+
+/* PIE DE PÁGINA */
+footer {
+    background: #102b49;
+    color: white;
+    text-align: center;
+    padding: 22px;
+    font-size: 12px;
+}
+
+/* DISEÑO RESPONSIVE */
+@media (max-width: 768px) {
+    .encabezado {
+        padding: 15px 5%;
+    }
+
+    nav {
+        gap: 12px;
+    }
+
+    nav a {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .encabezado {
+        padding: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav {
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .zona-acceso {
+        padding: 25px 12px;
+        align-items: flex-start;
+    }
+
+    .formulario {
+        padding: 24px 20px;
+    }
+
+    .formulario h1 {
+        font-size: 23px;
+    }
+
+    .roles-demo {
+        padding: 14px;
+    }
+
+    .rol {
+        font-size: 11px;
+        padding: 8px 10px;
+    }
+
+    .pestana {
+        padding: 15px 8px;
+        font-size: 12px;
+    }
+}
+
+/* ACCESIBILIDAD */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
