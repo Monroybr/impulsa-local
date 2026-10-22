@@ -27,3 +27,8 @@ Route::get('/registro', function () {
 Route::get('/acceso', function () {
     return view('acceso');
 })->name('acceso');
+
+//Página administrador
+Route::get('/administrador', function () {
+    return view('administrador');
+})->name('administrador');
