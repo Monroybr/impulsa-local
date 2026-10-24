@@ -1,7 +1,10 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ELEMENTOS DEL FORMULARIO
+    // ==========================================
+    // ELEMENTOS DE LOS FORMULARIOS
+    // ==========================================
+
     const login = document.getElementById('formLogin');
     const registro = document.getElementById('formRegistro');
 
@@ -13,18 +16,33 @@ document.addEventListener('DOMContentLoaded', function () {
     const botonesRol = document.querySelectorAll('.rol');
     const descripcionRol = document.getElementById('descripcionRol');
 
+    const olvidoClave = document.getElementById('olvidoClave');
+
+    // ==========================================
     // DESCRIPCIONES DE LOS ROLES
+    // ==========================================
+
     const descripciones = {
-        administrador: 'Administra los usuarios y la configuración general de la plataforma.',
-        funcionario: 'Participa en la gestión y seguimiento de los emprendedores.',
-        coordinador: 'Coordina los programas de formación y las actividades.',
-        instructor: 'Gestiona la formación y el acompañamiento a los emprendedores.',
-        emprendedor: 'Accede a los cursos y herramientas para fortalecer tu negocio.'
+        administrador:
+            'Administra los usuarios y la configuración general de la plataforma.',
+
+        funcionario:
+            'Participa en la gestión y seguimiento de los emprendedores.',
+
+        coordinador:
+            'Coordina los programas de formación y las actividades.',
+
+        instructor:
+            'Gestiona la formación y el acompañamiento a los emprendedores.',
+
+        emprendedor:
+            'Accede a los cursos y herramientas para fortalecer tu negocio.'
     };
 
-    let rolSeleccionado = null;
-
+    // ==========================================
     // CAMBIAR ENTRE FORMULARIOS
+    // ==========================================
+
     function mostrarFormulario(tipo) {
 
         const esLogin = tipo === 'login';
@@ -35,10 +53,18 @@ document.addEventListener('DOMContentLoaded', function () {
         tabLogin.classList.toggle('activa', esLogin);
         tabRegistro.classList.toggle('activa', !esLogin);
 
-        mensaje.textContent = '';
+        tabLogin.setAttribute('aria-selected', String(esLogin));
+        tabRegistro.setAttribute('aria-selected', String(!esLogin));
+
+        if (mensaje) {
+            mensaje.textContent = '';
+        }
     }
 
+    // ==========================================
     // PESTAÑAS SUPERIORES
+    // ==========================================
+
     tabLogin.addEventListener('click', function () {
         mostrarFormulario('login');
     });
@@ -47,7 +73,10 @@ document.addEventListener('DOMContentLoaded', function () {
         mostrarFormulario('registro');
     });
 
+    // ==========================================
     // ENLACES ENTRE FORMULARIOS
+    // ==========================================
+
     document.getElementById('irRegistro')
         .addEventListener('click', function () {
             mostrarFormulario('registro');
@@ -58,7 +87,10 @@ document.addEventListener('DOMContentLoaded', function () {
             mostrarFormulario('login');
         });
 
+    // ==========================================
     // SELECCIÓN VISUAL DE ROLES
+    // ==========================================
+
     botonesRol.forEach(function (boton) {
 
         boton.addEventListener('click', function () {
@@ -71,16 +103,21 @@ document.addEventListener('DOMContentLoaded', function () {
             boton.classList.add('seleccionado');
             boton.setAttribute('aria-pressed', 'true');
 
-            rolSeleccionado = boton.dataset.rol;
+            const rolSeleccionado = boton.dataset.rol;
 
-            descripcionRol.textContent =
-                descripciones[rolSeleccionado];
+            if (descripcionRol) {
+                descripcionRol.textContent =
+                    descripciones[rolSeleccionado] || '';
+            }
         });
 
     });
 
-    // ABRIR LA PESTAÑA SEGÚN LA URL
-    const rutaActual = window.location.pathname;
+    // ==========================================
+    // ABRIR PESTAÑA SEGÚN LA URL
+    // ==========================================
+
+    const rutaActual = window.location.pathname.replace(/\/+$/, '');
 
     if (rutaActual === '/registro') {
         mostrarFormulario('registro');
@@ -88,38 +125,48 @@ document.addEventListener('DOMContentLoaded', function () {
         mostrarFormulario('login');
     }
 
-    // INICIO DE SESIÓN
-    login.addEventListener('submit', function (event) {
+    // ==========================================
+    // VALIDACIÓN DE INICIO DE SESIÓN
+    // ==========================================
 
-        event.preventDefault();
+    login.addEventListener('submit', function (event) {
 
         const correo = document.getElementById('correoLogin').value.trim();
         const clave = document.getElementById('claveLogin').value;
 
         if (!correo || !clave) {
-            mensaje.textContent = 'Completa todos los campos.';
+
+            event.preventDefault();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    'Por favor, completa tu correo y contraseña.';
+            }
+
             return;
         }
 
-        if (!rolSeleccionado) {
-            mensaje.textContent = 'Selecciona tu rol para continuar.';
-            return;
-        }
-
-        mensaje.textContent =
-            'Formulario validado. Próximamente habilitaremos el inicio de sesión.';
+        // No bloqueamos el formulario.
+        // Laravel comprobará el correo, la contraseña
+        // y el rol guardado en SQLite.
     });
 
-    // REGISTRO DE USUARIO
+    // ==========================================
+    // VALIDACIÓN DEL REGISTRO
+    // ==========================================
+
     registro.addEventListener('submit', function (event) {
 
-        event.preventDefault();
-
         const nombre = document.getElementById('nombre').value.trim();
-        const correo = document.getElementById('correoRegistro').value.trim();
 
-        const clave = document.getElementById('claveRegistro').value;
-        const confirmar = document.getElementById('confirmarClave').value;
+        const correo =
+            document.getElementById('correoRegistro').value.trim();
+
+        const clave =
+            document.getElementById('claveRegistro').value;
+
+        const confirmar =
+            document.getElementById('confirmarClave').value;
 
         const tipoEmprendimiento =
             document.getElementById('tipoEmprendimiento').value;
@@ -133,7 +180,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const direccion =
             document.getElementById('direccion').value.trim();
 
-        // VALIDAR CAMPOS
+        // COMPROBAR CAMPOS OBLIGATORIOS
+
         if (
             !nombre ||
             !correo ||
@@ -144,37 +192,66 @@ document.addEventListener('DOMContentLoaded', function () {
             !telefono ||
             !direccion
         ) {
-            mensaje.textContent = 'Completa todos los campos.';
+
+            event.preventDefault();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    'Por favor, completa todos los campos del registro.';
+            }
+
             return;
         }
 
-        // VALIDAR CONTRASEÑA
+        // COMPROBAR LONGITUD DE CONTRASEÑA
+
         if (clave.length < 8) {
-            mensaje.textContent =
-                'La contraseña debe tener mínimo 8 caracteres.';
+
+            event.preventDefault();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    'La contraseña debe tener mínimo 8 caracteres.';
+            }
+
             return;
         }
 
-        // CONFIRMAR CONTRASEÑA
+        // COMPROBAR CONFIRMACIÓN DE CONTRASEÑA
+
         if (clave !== confirmar) {
-            mensaje.textContent =
-                'Las contraseñas no coinciden.';
+
+            event.preventDefault();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    'Las contraseñas no coinciden.';
+            }
+
             return;
         }
 
-        mensaje.textContent =
-            'Formulario validado. Próximamente guardaremos tu registro.';
+        // Si todo está correcto, el formulario se
+        // envía normalmente a Laravel mediante POST.
+        // AuthController guardará la cuenta en SQLite.
     });
 
-    // RECUPERAR CONTRASEÑA
-    const olvidoClave = document.getElementById('olvidoClave');
+    // ==========================================
+    // RECUPERACIÓN DE CONTRASEÑA
+    // ==========================================
 
-    olvidoClave.addEventListener('click', function (event) {
+    if (olvidoClave) {
 
-        event.preventDefault();
+        olvidoClave.addEventListener('click', function (event) {
 
-        mensaje.textContent =
-            'La recuperación de contraseña estará disponible próximamente.';
-    });
+            event.preventDefault();
+
+            if (mensaje) {
+                mensaje.textContent =
+                    'La recuperación de contraseña estará disponible próximamente.';
+            }
+        });
+
+    }
 
 });

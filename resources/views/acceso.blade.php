@@ -21,7 +21,7 @@
         <nav>
             <a href="{{ route('inicio') }}">Inicio</a>
             <a href="{{ route('cursos') }}">Cursos disponibles</a>
-            <a href="{{ url('/acceso') }}" class="nav-acceso">
+            <a href="{{ route('login') }}" class="nav-acceso">
                 Iniciar sesión
             </a>
         </nav>
@@ -30,37 +30,6 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="zona-acceso">
         <div class="contenedor-acceso">
-
-            <!-- SELECCIÓN DE ROL -->
-            <section class="roles-demo">
-                <h3>ESCOGE TU ROL</h3>
-
-                <div class="roles">
-                    <button type="button" class="rol" data-rol="administrador">
-                        Administrador
-                    </button>
-
-                    <button type="button" class="rol" data-rol="funcionario">
-                        Funcionario
-                    </button>
-
-                    <button type="button" class="rol" data-rol="coordinador">
-                        Coordinador
-                    </button>
-
-                    <button type="button" class="rol" data-rol="instructor">
-                        Instructor
-                    </button>
-
-                    <button type="button" class="rol" data-rol="emprendedor">
-                        Emprendedor
-                    </button>
-                </div>
-
-                <p class="descripcion-rol" id="descripcionRol">
-                    Selecciona el rol con el que deseas ingresar.
-                </p>
-            </section>
 
             <!-- TARJETA DE ACCESO -->
             <div class="tarjeta-acceso">
@@ -81,7 +50,12 @@
                 </div>
 
                 <!-- FORMULARIO DE INICIO DE SESIÓN -->
-                <form class="formulario" id="formLogin">
+                <form class="formulario"
+                      id="formLogin"
+                      method="POST"
+                      action="{{ route('login.procesar') }}">
+
+                    @csrf
 
                     <h1>Bienvenido de vuelta</h1>
 
@@ -98,6 +72,7 @@
                            name="email"
                            placeholder="correo@ejemplo.com"
                            autocomplete="email"
+                           value="{{ request()->is('login') ? old('email') : '' }}"
                            required>
 
                     <label for="claveLogin">
@@ -107,11 +82,13 @@
                     <input type="password"
                            id="claveLogin"
                            name="password"
-                           placeholder="Tu contraseña"
+                           placeholder="Tu contraseña" 
                            autocomplete="current-password"
                            required>
 
-                    <a href="#" class="olvido" id="olvidoClave">
+                    <a href="#"
+                       class="olvido"
+                       id="olvidoClave">
                         ¿Olvidaste tu contraseña?
                     </a>
 
@@ -130,7 +107,13 @@
                 </form>
 
                 <!-- FORMULARIO DE REGISTRO -->
-                <form class="formulario" id="formRegistro" hidden>
+                <form class="formulario"
+                      id="formRegistro"
+                      method="POST"
+                      action="{{ route('registro.procesar') }}"
+                      hidden>
+
+                    @csrf
 
                     <h1>Crea tu cuenta</h1>
 
@@ -147,6 +130,8 @@
                            name="nombre"
                            placeholder="María García"
                            autocomplete="name"
+                           value="{{ old('nombre') }}"
+                           maxlength="255"
                            required>
 
                     <label for="correoRegistro">
@@ -158,6 +143,7 @@
                            name="email"
                            placeholder="maria@ejemplo.com"
                            autocomplete="email"
+                           value="{{ request()->is('registro') ? old('email') : '' }}"
                            required>
 
                     <label for="claveRegistro">
@@ -170,6 +156,7 @@
                            placeholder="Mínimo 8 caracteres"
                            autocomplete="new-password"
                            minlength="8"
+                           maxlength="10"
                            required>
 
                     <label for="confirmarClave">
@@ -182,6 +169,7 @@
                            placeholder="Repite tu contraseña"
                            autocomplete="new-password"
                            minlength="8"
+                           maxlength="10"
                            required>
 
                     <label for="tipoEmprendimiento">
@@ -196,16 +184,26 @@
                             Selecciona una opción...
                         </option>
 
-                        <option>Panadería / Repostería</option>
-                        <option>Artesanías</option>
-                        <option>Taller de reparaciones</option>
-                        <option>Tienda de barrio</option>
-                        <option>Restaurante / Comida</option>
-                        <option>Costura / Confección</option>
-                        <option>Servicios de belleza</option>
-                        <option>Agricultura / Huerta</option>
-                        <option>Servicios tecnológicos</option>
-                        <option>Otro</option>
+                        @foreach ([
+                            'Panadería / Repostería',
+                            'Artesanías',
+                            'Taller de reparaciones',
+                            'Tienda de barrio',
+                            'Restaurante / Comida',
+                            'Costura / Confección',
+                            'Servicios de belleza',
+                            'Agricultura / Huerta',
+                            'Servicios tecnológicos',
+                            'Otro'
+                        ] as $tipo)
+
+                            <option value="{{ $tipo }}"
+                                @selected(old('tipo_emprendimiento') === $tipo)>
+                                {{ $tipo }}
+                            </option>
+
+                        @endforeach
+
                     </select>
 
                     <label for="nombreNegocio">
@@ -216,17 +214,21 @@
                            id="nombreNegocio"
                            name="nombre_negocio"
                            placeholder="Ej: Panadería El Trigal"
+                           value="{{ old('nombre_negocio') }}"
+                           maxlength="255"
                            required>
 
                     <label for="telefono">
                         TELÉFONO
                     </label>
 
-                    <input type="tel"
+                    <input type="number"
                            id="telefono"
                            name="telefono"
                            placeholder="Ej: 3101234567"
                            autocomplete="tel"
+                           value="{{ old('telefono') }}"
+                           maxlength="30"
                            required>
 
                     <label for="direccion">
@@ -237,6 +239,8 @@
                            id="direccion"
                            name="direccion"
                            placeholder="Dirección del emprendimiento"
+                           value="{{ old('direccion') }}"
+                           maxlength="255"
                            required>
 
                     <button type="submit" class="boton-principal">
@@ -255,8 +259,32 @@
 
             </div>
 
+            <!-- ERRORES DE VALIDACIÓN -->
+            @if ($errors->any())
+                <div class="errores-acceso" role="alert">
+                    <strong>
+                        No fue posible completar la solicitud:
+                    </strong>
+
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- MENSAJES -->
-            <p class="mensaje" id="mensaje" role="status" aria-live="polite"></p>
+            @if (session('status'))
+                <p class="mensaje" role="status">
+                    {{ session('status') }}
+                </p>
+            @endif
+
+            <p class="mensaje"
+               id="mensaje"
+               role="status"
+               aria-live="polite"></p>
 
         </div>
     </main>
@@ -266,6 +294,7 @@
         © 2026 Impulsa Local — Liseth Dayana Monroy Briñez
     </footer>
 
+    <!-- JAVASCRIPT -->
     <script src="{{ asset('js/acceso.js') }}" defer></script>
 
 </body>
