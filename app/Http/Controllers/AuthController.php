@@ -13,15 +13,28 @@ class AuthController extends Controller
     {
         $datos = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'tipo_emprendimiento' => ['required', 'string', 'max:255'],
-            'nombre_negocio' => ['required', 'string', 'max:255'],
-            'telefono' => ['required', 'string', 'max:30'],
-            'direccion' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required', 'email', 'max:255',
+                'unique:users,email'
+            ],
+            'password' => [
+                'required', 'string', 'min:8', 'confirmed'
+            ],
+            'tipo_emprendimiento' => [
+                'required', 'string', 'max:255'
+            ],
+            'nombre_negocio' => [
+                'required', 'string', 'max:255'
+            ],
+            'telefono' => [
+                'required', 'string', 'max:30'
+            ],
+            'direccion' => [
+                'required', 'string', 'max:255'
+            ],
         ]);
 
-        $usuario = User::create([
+        User::create([
             'name' => $datos['nombre'],
             'email' => $datos['email'],
             'password' => $datos['password'],
@@ -30,14 +43,15 @@ class AuthController extends Controller
             'nombre_negocio' => $datos['nombre_negocio'],
             'telefono' => $datos['telefono'],
             'direccion' => $datos['direccion'],
-            'activo' => true
+            'activo' => true,
         ]);
 
-        Auth::login($usuario);
-
-        $request->session()->regenerate();
-
-        return redirect()->route('emprendedor');
+        return redirect()
+            ->route('login')
+            ->with(
+                'status',
+                'Cuenta creada exitosamente. Ya puedes iniciar sesión.'
+            );
     }
 
     public function iniciarSesion(Request $request)
@@ -58,7 +72,6 @@ class AuthController extends Controller
         $usuario = Auth::user();
 
         if (!$usuario->activo) {
-
             Auth::logout();
 
             $request->session()->invalidate();
@@ -78,17 +91,14 @@ class AuthController extends Controller
         ];
 
         if (!isset($rutas[$usuario->rol])) {
-
             Auth::logout();
 
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return redirect()
-                ->route('login')
-                ->withErrors([
-                    'email' => 'Tu cuenta no tiene un rol válido.'
-                ]);
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta no tiene un rol válido.',
+            ]);
         }
 
         return redirect()->route($rutas[$usuario->rol]);

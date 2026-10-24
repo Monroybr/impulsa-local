@@ -1,10 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    // ==========================================
-    // ELEMENTOS DE LOS FORMULARIOS
-    // ==========================================
-
     const login = document.getElementById('formLogin');
     const registro = document.getElementById('formRegistro');
 
@@ -18,81 +14,80 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const olvidoClave = document.getElementById('olvidoClave');
 
-    // ==========================================
-    // DESCRIPCIONES DE LOS ROLES
-    // ==========================================
-
     const descripciones = {
         administrador:
             'Administra los usuarios y la configuración general de la plataforma.',
-
         funcionario:
             'Participa en la gestión y seguimiento de los emprendedores.',
-
         coordinador:
             'Coordina los programas de formación y las actividades.',
-
         instructor:
             'Gestiona la formación y el acompañamiento a los emprendedores.',
-
         emprendedor:
             'Accede a los cursos y herramientas para fortalecer tu negocio.'
     };
 
-    // ==========================================
-    // CAMBIAR ENTRE FORMULARIOS
-    // ==========================================
-
     function mostrarFormulario(tipo) {
-
         const esLogin = tipo === 'login';
 
-        login.hidden = !esLogin;
-        registro.hidden = esLogin;
+        if (login) {
+            login.hidden = !esLogin;
+        }
 
-        tabLogin.classList.toggle('activa', esLogin);
-        tabRegistro.classList.toggle('activa', !esLogin);
+        if (registro) {
+            registro.hidden = esLogin;
+        }
 
-        tabLogin.setAttribute('aria-selected', String(esLogin));
-        tabRegistro.setAttribute('aria-selected', String(!esLogin));
+        if (tabLogin) {
+            tabLogin.classList.toggle('activa', esLogin);
+            tabLogin.setAttribute(
+                'aria-selected',
+                String(esLogin)
+            );
+        }
+
+        if (tabRegistro) {
+            tabRegistro.classList.toggle('activa', !esLogin);
+            tabRegistro.setAttribute(
+                'aria-selected',
+                String(!esLogin)
+            );
+        }
 
         if (mensaje) {
             mensaje.textContent = '';
         }
     }
 
-    // ==========================================
-    // PESTAÑAS SUPERIORES
-    // ==========================================
-
-    tabLogin.addEventListener('click', function () {
-        mostrarFormulario('login');
-    });
-
-    tabRegistro.addEventListener('click', function () {
-        mostrarFormulario('registro');
-    });
-
-    // ==========================================
-    // ENLACES ENTRE FORMULARIOS
-    // ==========================================
-
-    document.getElementById('irRegistro')
-        .addEventListener('click', function () {
-            mostrarFormulario('registro');
-        });
-
-    document.getElementById('irLogin')
-        .addEventListener('click', function () {
+    if (tabLogin) {
+        tabLogin.addEventListener('click', function () {
             mostrarFormulario('login');
         });
+    }
 
-    // ==========================================
-    // SELECCIÓN VISUAL DE ROLES
-    // ==========================================
+    if (tabRegistro) {
+        tabRegistro.addEventListener('click', function () {
+            mostrarFormulario('registro');
+        });
+    }
+
+    const irRegistro = document.getElementById('irRegistro');
+
+    if (irRegistro) {
+        irRegistro.addEventListener('click', function () {
+            mostrarFormulario('registro');
+        });
+    }
+
+    const irLogin = document.getElementById('irLogin');
+
+    if (irLogin) {
+        irLogin.addEventListener('click', function () {
+            mostrarFormulario('login');
+        });
+    }
 
     botonesRol.forEach(function (boton) {
-
         boton.addEventListener('click', function () {
 
             botonesRol.forEach(function (rol) {
@@ -110,140 +105,127 @@ document.addEventListener('DOMContentLoaded', function () {
                     descripciones[rolSeleccionado] || '';
             }
         });
-
     });
 
-    // ==========================================
-    // ABRIR PESTAÑA SEGÚN LA URL
-    // ==========================================
+    const rutaActual =
+        window.location.pathname.replace(/\/+$/, '');
 
-    const rutaActual = window.location.pathname.replace(/\/+$/, '');
+    const pestañaInicial =
+        window.IMPULSA_ACCESO?.pestañaInicial ||
+        (rutaActual === '/registro' ? 'registro' : 'login');
 
-    if (rutaActual === '/registro') {
-        mostrarFormulario('registro');
-    } else {
-        mostrarFormulario('login');
+    mostrarFormulario(pestañaInicial);
+
+    if (login) {
+        login.addEventListener('submit', function (event) {
+
+            const correo = document
+                .getElementById('correoLogin')
+                .value.trim();
+
+            const clave = document
+                .getElementById('claveLogin')
+                .value;
+
+            if (!correo || !clave) {
+                event.preventDefault();
+
+                if (mensaje) {
+                    mensaje.textContent =
+                        'Por favor, completa tu correo y contraseña.';
+                }
+
+                return;
+            }
+
+            // Laravel valida las credenciales reales.
+        });
     }
 
-    // ==========================================
-    // VALIDACIÓN DE INICIO DE SESIÓN
-    // ==========================================
+    if (registro) {
+        registro.addEventListener('submit', function (event) {
 
-    login.addEventListener('submit', function (event) {
+            const nombre = document
+                .getElementById('nombre')
+                .value.trim();
 
-        const correo = document.getElementById('correoLogin').value.trim();
-        const clave = document.getElementById('claveLogin').value;
+            const correo = document
+                .getElementById('correoRegistro')
+                .value.trim();
 
-        if (!correo || !clave) {
+            const clave = document
+                .getElementById('claveRegistro')
+                .value;
 
-            event.preventDefault();
+            const confirmar = document
+                .getElementById('confirmarClave')
+                .value;
 
-            if (mensaje) {
-                mensaje.textContent =
-                    'Por favor, completa tu correo y contraseña.';
+            const tipoEmprendimiento = document
+                .getElementById('tipoEmprendimiento')
+                .value;
+
+            const nombreNegocio = document
+                .getElementById('nombreNegocio')
+                .value.trim();
+
+            const telefono = document
+                .getElementById('telefono')
+                .value.trim();
+
+            const direccion = document
+                .getElementById('direccion')
+                .value.trim();
+
+            if (
+                !nombre ||
+                !correo ||
+                !clave ||
+                !confirmar ||
+                !tipoEmprendimiento ||
+                !nombreNegocio ||
+                !telefono ||
+                !direccion
+            ) {
+                event.preventDefault();
+
+                if (mensaje) {
+                    mensaje.textContent =
+                        'Por favor, completa todos los campos del registro.';
+                }
+
+                return;
             }
 
-            return;
-        }
+            if (clave.length < 8) {
+                event.preventDefault();
 
-        // No bloqueamos el formulario.
-        // Laravel comprobará el correo, la contraseña
-        // y el rol guardado en SQLite.
-    });
+                if (mensaje) {
+                    mensaje.textContent =
+                        'La contraseña debe tener mínimo 8 caracteres.';
+                }
 
-    // ==========================================
-    // VALIDACIÓN DEL REGISTRO
-    // ==========================================
-
-    registro.addEventListener('submit', function (event) {
-
-        const nombre = document.getElementById('nombre').value.trim();
-
-        const correo =
-            document.getElementById('correoRegistro').value.trim();
-
-        const clave =
-            document.getElementById('claveRegistro').value;
-
-        const confirmar =
-            document.getElementById('confirmarClave').value;
-
-        const tipoEmprendimiento =
-            document.getElementById('tipoEmprendimiento').value;
-
-        const nombreNegocio =
-            document.getElementById('nombreNegocio').value.trim();
-
-        const telefono =
-            document.getElementById('telefono').value.trim();
-
-        const direccion =
-            document.getElementById('direccion').value.trim();
-
-        // COMPROBAR CAMPOS OBLIGATORIOS
-
-        if (
-            !nombre ||
-            !correo ||
-            !clave ||
-            !confirmar ||
-            !tipoEmprendimiento ||
-            !nombreNegocio ||
-            !telefono ||
-            !direccion
-        ) {
-
-            event.preventDefault();
-
-            if (mensaje) {
-                mensaje.textContent =
-                    'Por favor, completa todos los campos del registro.';
+                return;
             }
 
-            return;
-        }
+            if (clave !== confirmar) {
+                event.preventDefault();
 
-        // COMPROBAR LONGITUD DE CONTRASEÑA
+                if (mensaje) {
+                    mensaje.textContent =
+                        'Las contraseñas no coinciden.';
+                }
 
-        if (clave.length < 8) {
-
-            event.preventDefault();
-
-            if (mensaje) {
-                mensaje.textContent =
-                    'La contraseña debe tener mínimo 8 caracteres.';
+                return;
             }
 
-            return;
-        }
-
-        // COMPROBAR CONFIRMACIÓN DE CONTRASEÑA
-
-        if (clave !== confirmar) {
-
-            event.preventDefault();
-
-            if (mensaje) {
-                mensaje.textContent =
-                    'Las contraseñas no coinciden.';
-            }
-
-            return;
-        }
-
-        // Si todo está correcto, el formulario se
-        // envía normalmente a Laravel mediante POST.
-        // AuthController guardará la cuenta en SQLite.
-    });
-
-    // ==========================================
-    // RECUPERACIÓN DE CONTRASEÑA
-    // ==========================================
+            // El formulario se envía a Laravel.
+            // AuthController guarda la cuenta en SQLite.
+        });
+    }
 
     if (olvidoClave) {
-
         olvidoClave.addEventListener('click', function (event) {
-
             event.preventDefault();
 
             if (mensaje) {
@@ -251,7 +233,5 @@ document.addEventListener('DOMContentLoaded', function () {
                     'La recuperación de contraseña estará disponible próximamente.';
             }
         });
-
     }
-
 });

@@ -1,16 +1,22 @@
 
-/* =========================================
-   IMPULSA LOCAL - VISTA EMPRENDEDOR
-   ESTILOS COMPLETOS
-========================================= */
+/* ==========================================
+   IMPULSA LOCAL - PANEL EMPRENDEDOR
+   Diseño inspirado en los mockups originales
+   Compatible con el Blade y JavaScript actual
+========================================== */
 
 :root {
     --azul: #1c3b5c;
+    --azul-oscuro: #102f50;
+    --azul-suave: #eaf1f9;
     --texto: #102f50;
     --gris: #8996aa;
     --fondo: #f8f7f5;
     --borde: #e0e4e9;
     --claro: #f6f8fa;
+    --verde: #008442;
+    --rojo: #d93645;
+    --amarillo: #ffbd22;
 }
 
 * {
@@ -20,9 +26,9 @@
 body {
     margin: 0;
     background: var(--fondo);
+    color: var(--texto);
     font-family: Arial, Helvetica, sans-serif;
     font-size: 13px;
-    color: var(--texto);
 }
 
 button,
@@ -37,47 +43,62 @@ button {
 }
 
 button:disabled {
+    opacity: .6;
     cursor: not-allowed;
-    opacity: 0.65;
 }
 
-/* =========================================
+[hidden] {
+    display: none !important;
+}
+
+/* ==========================================
    ENCABEZADO
-========================================= */
+========================================== */
 
 .cabecera {
-    height: 54px;
-    background: white;
+    min-height: 58px;
+    padding: 10px 24px;
+    background: #fff;
     border-bottom: 1px solid var(--borde);
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    align-items: center;
+    gap: 16px;
 }
 
-.marca,
-.usuario {
+.marca {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: var(--azul);
+    text-decoration: none;
 }
 
 .marca strong {
     font-family: Georgia, serif;
-    font-size: 17px;
+    font-size: 19px;
 }
 
 .logo {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
     background: var(--azul);
-    color: #ffc21c;
-    border-radius: 8px;
-    padding: 9px;
-    font-size: 11px;
+    color: var(--amarillo);
+    border-radius: 9px;
     font-weight: bold;
 }
 
 .usuario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-align: right;
+}
+
+.usuario strong {
+    display: block;
 }
 
 .usuario small {
@@ -86,18 +107,12 @@ button:disabled {
     margin-top: 4px;
 }
 
-.usuario a {
-    font-size: 20px;
-    color: var(--gris);
-    text-decoration: none;
-}
-
 .avatar {
+    width: 33px;
+    height: 33px;
+    border-radius: 50%;
     background: var(--azul);
     color: white;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
     display: grid;
     place-items: center;
     font-weight: bold;
@@ -106,62 +121,88 @@ button:disabled {
 .etiqueta,
 .estado {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: bold;
 }
 
 .turquesa {
-    background: #c9faf0;
     color: #007a70;
+    background: #c9faf0;
 }
 
-/* =========================================
-   NAVEGACIÓN PRINCIPAL
-========================================= */
+/* ==========================================
+   PESTAÑAS PRINCIPALES
+========================================== */
 
-.pestanas,
-.subpestanas {
+.pestanas {
     display: flex;
-    gap: 4px;
-    background: white;
+    align-items: center;
+    gap: 5px;
+    background: #fff;
     border-bottom: 1px solid var(--borde);
-    padding: 0 18px;
+    padding: 0 24px;
     overflow-x: auto;
 }
 
-.pestana,
-.subpestana {
-    padding: 15px 17px;
+.pestana {
     border: 0;
+    border-bottom: 3px solid transparent;
     background: transparent;
-    color: #5c6b80;
+    color: #607086;
+    padding: 17px 20px;
     white-space: nowrap;
-    border-bottom: 2px solid transparent;
+    font-weight: 500;
 }
 
-.pestana:hover,
-.subpestana:hover {
-    color: var(--azul);
+.pestana:hover {
     background: #f7f9fb;
+    color: var(--azul);
 }
 
-.pestana.activa,
-.subpestana.activa {
-    color: var(--texto);
-    border-color: var(--azul);
+.pestana.activa {
+    color: var(--azul);
+    border-bottom-color: var(--azul);
     font-weight: bold;
 }
 
-.subpestanas {
-    margin: -20px -16px 20px;
-    padding: 0 16px;
+/* Iconos sin dependencias externas */
+
+.pestana[data-vista="perfil"]::before {
+    content: "♙";
+    margin-right: 8px;
+    font-size: 16px;
 }
 
-main {
-    padding: 20px 16px;
-    min-height: calc(100vh - 110px);
+.pestana[data-vista="programas"]::before {
+    content: "▤";
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.pestana[data-vista="progreso"]::before {
+    content: "▥";
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.pestana[data-vista="negocio"]::before {
+    content: "▦";
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* ==========================================
+   CONTENIDO GENERAL
+========================================== */
+
+main,
+.il-panel {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 20px;
+    min-height: calc(100vh - 150px);
 }
 
 .vista {
@@ -172,187 +213,219 @@ main {
     display: block;
 }
 
-/* =========================================
-   TARJETAS
-========================================= */
-
+.il-tarjeta,
 .tarjeta {
-    background: white;
+    background: #fff;
     border: 1px solid var(--borde);
-    border-radius: 15px;
-    box-shadow: 0 1px 2px #00000012;
-}
-
-.perfil {
-    max-width: 630px;
-    margin: 2px auto;
-    padding: 24px;
-}
-
-.perfil h2 {
-    margin: 0 0 24px;
-    font-size: 19px;
-}
-
-.cabecera-bloque {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-/* =========================================
-   PERFIL
-========================================= */
-
-.datos-perfil {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 22px;
-}
-
-.dato-perfil small,
-.indicador small {
-    display: block;
-    color: #929db1;
-    font-size: 11px;
-}
-
-.dato-perfil div {
-    margin-top: 5px;
-}
-
-/* =========================================
-   BOTONES
-========================================= */
-
-.btn {
-    border: 0;
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-weight: bold;
-    transition: background 0.2s ease;
-}
-
-.btn.primario {
-    background: var(--azul);
-    color: white;
-}
-
-.btn.primario:hover {
-    background: #294f75;
-}
-
-.btn.secundario {
-    background: white;
-    border: 1px solid var(--azul);
-    color: var(--azul);
-}
-
-.btn.secundario:hover {
-    background: #eef3f8;
-}
-
-.btn.texto,
-.btn.enlace {
-    background: transparent;
-    color: #52667f;
-}
-
-.btn.enlace {
-    padding: 5px;
-}
-
-.acciones {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 20px;
-}
-
-/* =========================================
-   FORMULARIOS
-========================================= */
-
-.perfil label,
-.form-modal label {
-    display: block;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-}
-
-.perfil input,
-.perfil select,
-.form-modal input,
-.form-modal select,
-.form-modal textarea,
-.barra-acciones input,
-.filtros select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--borde);
-    border-radius: 10px;
-    background: #f8f9fa;
-    color: var(--texto);
-    margin-top: 5px;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    outline: 2px solid #b4cce7;
-    border-color: var(--azul);
-}
-
-/* =========================================
-   PROGRAMAS
-========================================= */
-
-.bloque {
-    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 5px rgba(16, 47, 80, .04);
+    padding: 22px;
     margin-bottom: 18px;
 }
 
-.bloque h3,
-.filtros h3 {
-    margin: 0 0 17px;
-    font-size: 14px;
+.il-tarjeta h2 {
+    margin: 0 0 14px;
+    font-size: 19px;
+    color: var(--azul);
 }
 
-.inscripcion {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    background: var(--claro);
-    padding: 16px;
-    border-radius: 12px;
-    margin: 10px 0;
+.il-tarjeta h3 {
+    color: var(--azul);
 }
 
-.inscripcion small,
-.programa small,
-.detalle small {
+.il-tarjeta p {
+    line-height: 1.6;
+}
+
+.il-dato {
+    color: #53657c;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   MI PERFIL - DISEÑO COMPACTO
+========================================== */
+
+#vista-perfil {
+    max-width: 660px;
+    margin: 0 auto;
+}
+
+#vista-perfil > .il-tarjeta {
+    padding: 28px;
+}
+
+#perfilLectura > h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+#perfilLectura > p {
+    color: var(--gris);
+    margin-bottom: 28px;
+}
+
+#perfilLectura .il-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 30px;
+    row-gap: 24px;
+}
+
+#perfilLectura .il-grid > div {
+    min-width: 0;
+}
+
+#perfilLectura .il-grid strong {
     display: block;
-    color: #98a2b3;
-    margin-top: 5px;
+    color: #8996aa;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 7px;
 }
 
-.progreso-inline {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 240px;
+#perfilLectura .il-grid p {
+    color: var(--azul-oscuro);
+    margin: 0;
+    font-size: 13px;
 }
+
+#editarPerfil {
+    display: block;
+    margin: 28px 0 0 auto;
+}
+
+/* ==========================================
+   EDICIÓN DEL PERFIL
+========================================== */
+
+#perfilFormulario h2 {
+    margin-bottom: 24px;
+}
+
+.il-campo {
+    margin-bottom: 16px;
+}
+
+.il-campo label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--azul);
+}
+
+.il-campo input,
+.il-campo select {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    background: #f8f9fb;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    color: var(--texto);
+}
+
+.il-campo input:focus,
+.il-campo select:focus {
+    outline: 2px solid #bfd4ec;
+    border-color: var(--azul);
+}
+
+.il-botones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.il-boton {
+    display: inline-block;
+    padding: 11px 18px;
+    border: 1px solid var(--azul);
+    border-radius: 9px;
+    background: var(--azul);
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    transition: background .2s ease;
+}
+
+.il-boton:hover {
+    background: #2b5279;
+}
+
+.il-boton.secundario {
+    background: white;
+    color: var(--azul);
+}
+
+.il-boton.secundario:hover {
+    background: var(--azul-suave);
+}
+
+/* ==========================================
+   PROGRAMAS
+========================================== */
+
+#vista-programas > .il-tarjeta {
+    padding: 24px;
+}
+
+#vista-programas h2 {
+    font-size: 17px;
+    margin-bottom: 16px;
+}
+
+#inscripciones {
+    background: var(--claro);
+    border-radius: 11px;
+    min-height: 75px;
+}
+
+#vista-programas .il-tarjeta:nth-child(2) {
+    margin-top: 20px;
+}
+
+#vista-programas .il-tarjeta:nth-child(2) p {
+    color: #69798e;
+}
+
+/* ==========================================
+   MI PROGRESO
+========================================== */
+
+#vista-progreso {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+#vista-progreso .il-tarjeta {
+    margin-bottom: 20px;
+}
+
+#detalleProgreso,
+#seguimientos {
+    min-height: 75px;
+}
+
+.il-vacio {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--gris);
+    background: #f8f9fb;
+    border-radius: 10px;
+}
+
+/* Barras listas para datos de progreso */
 
 .barra {
     height: 8px;
-    background: #eff0f2;
+    background: #e9edf2;
     border-radius: 20px;
     overflow: hidden;
-    flex: 1;
 }
 
 .relleno {
@@ -361,630 +434,297 @@ textarea:focus {
     border-radius: 20px;
 }
 
-/* =========================================
-   ESTADOS
-========================================= */
-
-.estado.curso {
-    background: #dceaff;
-    color: #185ce8;
-}
-
-.estado.completado,
-.estado.activo {
-    background: #d9fae5;
-    color: #008442;
-}
-
-.estado.inactivo {
-    background: #fff3c2;
-    color: #ad7000;
-}
-
-.estado.finalizado {
-    background: #f1f2f4;
-    color: #526070;
-}
-
-/* =========================================
-   FILTROS Y TARJETAS DE PROGRAMAS
-========================================= */
-
-.filtros {
+.progreso-inline {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin: 18px 0;
-}
-
-.filtros h3 {
-    margin: 0;
-}
-
-.filtros select {
-    width: auto;
-    background: white;
-    margin: 0;
-}
-
-.cuadricula {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.programa {
-    padding: 18px;
-}
-
-.programa h3 {
-    margin: 0;
-    font-size: 13px;
-}
-
-.tematica {
-    display: block;
-    width: fit-content;
-    background: #dceaff;
-    color: #135ee0;
-    border-radius: 12px;
-    padding: 4px 10px;
-    margin: 12px 0;
-    font-size: 11px;
-    font-weight: bold;
-}
-
-.programa p {
-    min-height: 26px;
-    color: #7d8a9c;
-    font-size: 12px;
-}
-
-.fila {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    margin: 7px 0;
-    font-size: 11px;
-}
-
-.fila span:first-child {
-    color: #8492a5;
-}
-
-.btn-ancho {
-    width: 100%;
-    margin-top: 8px;
-}
-
-.btn-inscrito {
-    background: #edfcf2;
-    color: #009247;
-}
-
-.btn-no {
-    background: #a4afbf;
-    color: white;
-}
-
-/* =========================================
-   PROGRESO Y SEGUIMIENTOS
-========================================= */
-
-.columna-central {
-    max-width: 560px;
-    margin: auto;
-}
-
-.detalle {
-    margin: 20px 0;
-}
-
-.detalle .cabecera-bloque {
-    margin-bottom: 6px;
 }
 
 .seguimiento {
+    padding: 16px;
     background: var(--claro);
-    border-radius: 12px;
-    padding: 14px;
-    margin: 10px 0;
+    border-radius: 11px;
+    margin: 12px 0;
 }
 
-.seguimiento p {
-    line-height: 1.5;
-    margin-bottom: 0;
+/* ==========================================
+   INVENTARIO Y VENTAS
+========================================== */
+
+#vista-negocio > .il-tarjeta:first-child {
+    padding: 20px 24px;
 }
 
-/* =========================================
-   INVENTARIO
-========================================= */
+#vista-negocio > .il-tarjeta:first-child h2 {
+    margin-bottom: 6px;
+}
 
-.indicadores {
+#vista-negocio > .il-tarjeta:first-child > p {
+    color: #718096;
+}
+
+#negocio-inventario,
+#negocio-ventas {
+    margin-top: 18px;
+}
+
+.il-grid {
     display: grid;
-    gap: 12px;
-    margin-bottom: 16px;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(220px, 1fr)
+    );
+    gap: 16px;
 }
 
-.indicadores.cuatro {
-    grid-template-columns: repeat(4, 1fr);
+#negocio-inventario > .il-grid,
+#negocio-ventas > .il-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
 }
 
-.indicadores.tres {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.indicador {
+#negocio-inventario > .il-grid .il-tarjeta,
+#negocio-ventas > .il-grid .il-tarjeta {
+    margin-bottom: 0;
+    min-height: 105px;
     padding: 18px;
 }
 
-.indicador strong {
-    display: block;
-    font-size: 22px;
-    margin: 8px 0;
-}
-
-.verde {
-    color: #00a33f;
-}
-
-.azul {
-    color: #1459ff;
-}
-
-.rojo {
-    color: #f42b39;
-}
-
-.alerta {
-    padding: 14px 20px;
-    background: #fff8ed;
-    border: 1px solid #ffd69a;
-    border-radius: 10px;
-    color: #d75300;
-    margin-bottom: 16px;
-}
-
-.barra-acciones {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.barra-acciones input {
-    margin: 0;
-    flex: 1;
-    background: white;
-}
-
-.barra-acciones.entre {
-    justify-content: space-between;
-}
-
-/* =========================================
-   TABLAS
-========================================= */
-
-.tabla-scroll {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 850px;
-}
-
-th {
-    text-align: left;
-    background: var(--azul);
-    color: white;
-    padding: 14px;
+#negocio-inventario small,
+#negocio-ventas small {
+    color: var(--gris);
     font-size: 11px;
-}
-
-td {
-    padding: 14px;
-    border-bottom: 1px solid #eef0f2;
-    font-size: 12px;
-}
-
-tr:nth-child(even) {
-    background: #fafbfd;
-}
-
-.stock {
-    padding: 4px 9px;
-    border-radius: 12px;
-    background: #d9fae5;
-    color: #008442;
     font-weight: bold;
 }
 
-.stock.bajo {
-    background: #fff0d8;
-    color: #d85c00;
-}
-
-.accion-link {
-    border: 0;
-    background: transparent;
-    color: #1460c4;
-    padding: 3px;
-}
-
-.accion-link.peligro {
-    color: #e32332;
-}
-
-/* =========================================
-   VENTAS
-========================================= */
-
-.selector-periodo {
-    display: flex;
-    background: white;
-    border: 1px solid var(--borde);
-    border-radius: 9px;
-    padding: 4px;
-}
-
-.selector-periodo button {
-    background: transparent;
-    border: 0;
-    padding: 8px 15px;
-    color: #64748b;
-    border-radius: 6px;
-}
-
-.selector-periodo button.activo {
-    background: var(--azul);
-    color: white;
-}
-
-.resumen-ventas {
-    text-align: right;
-}
-
-.resumen-ventas strong {
-    display: block;
-    color: #00a344;
-    font-size: 22px;
-}
-
-.resumen-ventas small {
-    color: #8b98a8;
-}
-
-.dia-venta {
-    display: grid;
-    grid-template-columns: 90px 1fr 95px;
-    gap: 14px;
-    align-items: start;
-    margin: 14px 0;
-}
-
-.dia-venta .monto {
-    text-align: right;
+.il-resumen {
+    font-size: 23px;
     font-weight: bold;
-}
-
-.detalle-venta {
-    color: #96a0b3;
-    font-size: 11px;
-    margin-top: 4px;
-}
-
-.punto {
-    color: #ffb000;
-}
-
-.ranking {
-    margin: 14px 0;
-}
-
-.ranking .barra {
-    margin-top: 6px;
-    height: 7px;
-}
-
-.ranking .relleno {
-    background: #ffb900;
-}
-
-/* =========================================
-   VENTANAS MODALES
-========================================= */
-
-dialog {
-    border: 0;
-    border-radius: 15px;
-    padding: 0;
-    max-width: min(94vw, 460px);
-    width: 100%;
-    box-shadow: 0 25px 65px #0003;
-}
-
-dialog::backdrop {
-    background: #0006;
-}
-
-.form-modal {
-    padding: 24px;
-}
-
-.form-modal h3 {
-    margin: 0 0 18px;
-    font-size: 16px;
-}
-
-.dos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
-.linea-venta {
-    background: #f7f8fa;
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    display: grid;
-    grid-template-columns: 1.6fr 0.65fr 0.9fr auto;
-    gap: 7px;
-    align-items: center;
-}
-
-.linea-venta input,
-.linea-venta select {
-    padding: 9px 5px;
-    min-width: 0;
-}
-
-.linea-venta .quitar {
-    border: 0;
-    background: none;
-    color: #d32f2f;
-}
-
-.linea-venta small {
-    grid-column: 1 / -1;
-    color: #8492a5;
-}
-
-.total-modal {
-    display: flex;
-    justify-content: space-between;
-    background: var(--azul);
-    color: white;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.total-modal strong:last-child {
-    color: #ffbd00;
-    font-size: 19px;
-}
-
-/* =========================================
-   MENSAJES
-========================================= */
-
-#mensaje {
-    position: fixed;
-    bottom: 18px;
-    right: 18px;
-    background: var(--azul);
-    color: white;
-    padding: 12px 18px;
-    border-radius: 8px;
-    display: none;
-    z-index: 5;
-}
-
-/* =========================================
-   NUEVO MÓDULO: REPORTES DE AVANCE
-========================================= */
-
-.descripcion-avance {
-    color: #7d8a9c;
-    font-size: 12px;
-    line-height: 1.6;
-    margin: 5px 0 15px;
-}
-
-#vista-progreso .columna-central {
-    max-width: 750px;
-}
-
-#vista-progreso .cabecera-bloque {
-    align-items: flex-start;
-}
-
-#abrirReporteAvance {
-    white-space: nowrap;
-}
-
-/* HISTORIAL DE REPORTES */
-
-.reporte-avance {
-    background: #f6f8fa;
-    border: 1px solid #e0e4e9;
-    border-radius: 12px;
-    padding: 17px;
-    margin-top: 14px;
-}
-
-.reporte-avance h4 {
-    color: #1c3b5c;
-    font-size: 14px;
-    margin: 0 0 8px;
-}
-
-.reporte-fecha {
-    color: #8996aa;
-    font-size: 11px;
-}
-
-.reporte-contenido {
-    margin-top: 14px;
-}
-
-.reporte-contenido strong {
-    display: block;
-    color: #102f50;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.reporte-contenido p {
-    color: #607086;
-    line-height: 1.6;
-    margin: 0;
-    white-space: pre-wrap;
+    color: var(--azul);
+    margin-top: 12px;
     overflow-wrap: anywhere;
 }
 
-.reporte-vacio {
-    text-align: center;
-    padding: 28px 15px;
-    color: #8996aa;
-    background: #f6f8fa;
-    border-radius: 12px;
+#cantidadBajo {
+    color: var(--rojo);
 }
 
-.reporte-vacio p {
-    margin-bottom: 0;
+#ventasHoy,
+#ventasSemana,
+#ventasMes {
+    color: var(--verde);
 }
 
-/* FORMULARIO DE REPORTES */
+/* ==========================================
+   BUSCADOR Y ACCIONES
+========================================== */
 
-#modalReporteAvance {
-    max-width: min(94vw, 550px);
-    max-height: 90vh;
-    overflow-y: auto;
+#buscarProducto {
+    min-height: 40px;
+    padding: 10px 13px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    background: white;
+    color: var(--texto);
+    max-width: 440px;
 }
 
-#modalReporteAvance .form-modal h3 {
-    color: #1c3b5c;
-    margin-bottom: 8px;
+#buscarProducto:focus {
+    outline: 2px solid #bfd4ec;
 }
 
-#modalReporteAvance textarea,
-#modalReporteAvance select,
-#modalReporteAvance input {
-    display: block;
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #e0e4e9;
+#nuevoProducto,
+#nuevaVenta {
+    background: var(--azul);
+    color: white;
+}
+
+#exportarInventario,
+#exportarVentas {
+    background: white;
+    color: var(--azul);
+}
+
+/* ==========================================
+   TABLAS
+========================================== */
+
+.il-scroll,
+.tabla-scroll {
+    overflow-x: auto;
     border-radius: 10px;
-    background: #f8f9fa;
-    color: #102f50;
-    font: inherit;
-    margin-top: 6px;
 }
 
-#modalReporteAvance textarea {
-    resize: vertical;
-    min-height: 80px;
+.il-tabla,
+table {
+    width: 100%;
+    border-collapse: collapse;
 }
 
-#modalReporteAvance textarea:focus,
-#modalReporteAvance select:focus,
-#modalReporteAvance input:focus {
-    outline: 2px solid #b4cce7;
-    border-color: #1c3b5c;
-}
-
-/* ESTADOS DE LOS REPORTES */
-
-.estado-reporte {
-    display: inline-block;
-    background: #dceaff;
-    color: #185ce8;
+.il-tabla th,
+table th {
+    padding: 14px;
+    background: var(--azul);
+    color: white;
+    text-align: left;
     font-size: 11px;
+    white-space: nowrap;
+}
+
+.il-tabla td,
+table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #edf0f4;
+    color: var(--texto);
+    font-size: 12px;
+}
+
+.il-tabla tbody tr:nth-child(even),
+table tbody tr:nth-child(even) {
+    background: #fafbfd;
+}
+
+.il-tabla tbody tr:hover,
+table tbody tr:hover {
+    background: #f3f7fc;
+}
+
+.il-tabla td .il-boton {
+    padding: 7px 10px;
+    font-size: 11px;
+    margin: 2px;
+}
+
+.il-peligro {
+    color: var(--rojo);
     font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 20px;
-    margin-top: 8px;
 }
 
-/* =========================================
-   DISEÑO RESPONSIVE
-========================================= */
+/* ==========================================
+   ALERTAS Y MENSAJES
+========================================== */
 
-@media (max-width: 950px) {
-    .cuadricula {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.il-alerta {
+    padding: 13px 16px;
+    margin-bottom: 16px;
+    border: 1px solid #bce8ca;
+    border-radius: 10px;
+    background: #e8f7ed;
+    color: #176534;
+}
 
-    .indicadores.cuatro {
-        grid-template-columns: repeat(2, 1fr);
+.il-error {
+    border-color: #f2c3c3;
+    background: #fff0f0;
+    color: #9b1c1c;
+}
+
+#mensajeSistema:empty {
+    display: none;
+}
+
+/* ==========================================
+   VENTANAS MODALES
+========================================== */
+
+.il-modal,
+dialog {
+    border: 0;
+    border-radius: 14px;
+    padding: 24px;
+    width: min(520px, 92vw);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+    color: var(--texto);
+}
+
+.il-modal::backdrop,
+dialog::backdrop {
+    background: rgba(0, 0, 0, .5);
+}
+
+.il-modal h2 {
+    margin: 0 0 20px;
+    color: var(--azul);
+}
+
+.il-modal input,
+.il-modal select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--borde);
+    border-radius: 9px;
+    background: #f8f9fb;
+}
+
+/* ==========================================
+   DISEÑO RESPONSIVO
+========================================== */
+
+@media (max-width: 900px) {
+    #negocio-inventario > .il-grid,
+    #negocio-ventas > .il-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 650px) {
-    .cuadricula,
-    .indicadores.tres,
-    .indicadores.cuatro {
-        grid-template-columns: 1fr;
+@media (max-width: 600px) {
+    .cabecera {
+        padding: 10px 14px;
     }
 
-    .datos-perfil {
-        grid-template-columns: 1fr;
+    .marca strong {
+        font-size: 15px;
     }
 
-    .inscripcion,
-    .barra-acciones,
-    .filtros {
-        flex-wrap: wrap;
-    }
-
-    .progreso-inline {
-        min-width: 100%;
-        width: 100%;
-    }
-
-    .dia-venta {
-        grid-template-columns: 65px 1fr 80px;
+    .usuario {
         gap: 7px;
-    }
-
-    .perfil {
-        padding: 18px;
     }
 
     .usuario .etiqueta {
         display: none;
     }
 
-    .barra-acciones input {
-        min-width: 100%;
+    .pestanas {
+        padding: 0 8px;
     }
 
-    .dos {
+    .pestana {
+        padding: 14px 12px;
+        font-size: 12px;
+    }
+
+    main,
+    .il-panel {
+        padding: 0 12px;
+        margin: 16px auto;
+    }
+
+    #vista-perfil > .il-tarjeta {
+        padding: 20px;
+    }
+
+    #perfilLectura .il-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    #negocio-inventario > .il-grid,
+    #negocio-ventas > .il-grid {
         grid-template-columns: 1fr;
     }
 
-    #vista-progreso .cabecera-bloque {
-        flex-direction: column;
-        align-items: stretch;
+    .il-tarjeta {
+        padding: 16px;
     }
 
-    #abrirReporteAvance {
-        width: 100%;
+    .il-botones {
+        gap: 8px;
     }
 
-    #modalReporteAvance .form-modal {
-        padding: 18px;
+    .il-resumen {
+        font-size: 21px;
     }
-}
-
-/* =========================================
-   VISIBILIDAD DE ELEMENTOS OCULTOS
-========================================= */
-
-[hidden] {
-    display: none !important;
 }

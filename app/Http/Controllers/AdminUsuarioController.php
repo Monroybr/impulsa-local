@@ -27,19 +27,19 @@ class AdminUsuarioController extends Controller
             'name' => [
                 'required',
                 'string',
-                'max:255'
+                'max:255',
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email'
+                'unique:users,email',
             ],
             'password' => [
                 'required',
                 'string',
                 'min:8',
-                'confirmed'
+                'confirmed',
             ],
             'rol' => [
                 'required',
@@ -47,9 +47,9 @@ class AdminUsuarioController extends Controller
                     'administrador',
                     'funcionario',
                     'coordinador',
-                    'instructor'
-                ])
-            ]
+                    'instructor',
+                ]),
+            ],
         ]);
 
         User::create([
@@ -57,14 +57,14 @@ class AdminUsuarioController extends Controller
             'email' => $datos['email'],
             'password' => Hash::make($datos['password']),
             'rol' => $datos['rol'],
-            'activo' => true
+            'activo' => true,
         ]);
 
         return redirect()
             ->route('administrador')
             ->with(
                 'success',
-                'Usuario creado correctamente.'
+                'Usuario creado correctamente. Ya puede iniciar sesión con sus credenciales.'
             );
     }
 

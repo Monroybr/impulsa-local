@@ -1,1389 +1,670 @@
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function () {
 
-    // CONFIGURACIÓN Y DATOS INICIALES
-    const $ = id => document.getElementById(id);
+    'use strict';
 
-    const dinero = n => '$ ' + Math.round(n).toLocaleString('es-CO');
+    const usuario = window.IMPULSA_USUARIO;
 
-    // Fecha de referencia de las capturas
-    const hoy = '2026-10-22';
-
-    const actividades = [
-        'Panadería / Repostería',
-        'Artesanías',
-        'Taller de reparaciones',
-        'Tienda de barrio',
-        'Restaurante / Comida',
-        'Costura / Confección',
-        'Servicios de belleza',
-        'Agricultura / Huerta',
-        'Servicios tecnológicos',
-        'Otro'
-    ];
-
-    const categorias = [
-        'Panadería',
-        'Repostería',
-        'Artesanías',
-        'Ropa y textil',
-        'Alimentos',
-        'Bebidas',
-        'Servicios',
-        'Tecnología',
-        'Otro'
-    ];
-
-    const programas = [
-        {
-            id: 1,
-            nombre: 'Plan de Negocios desde Cero',
-            tema: 'Estrategia',
-            estado: 'activo',
-            semanas: 8,
-            cupos: 30,
-            ocupados: 18,
-            descripcion: 'Aprende a estructurar tu idea de negocio con metodologías probadas.'
-        },
-        {
-            id: 2,
-            nombre: 'Marketing Digital para Emprendedores',
-            tema: 'Marketing',
-            estado: 'activo',
-            semanas: 6,
-            cupos: 25,
-            ocupados: 22,
-            descripcion: 'Domina redes sociales, SEO y publicidad pagada.'
-        },
-        {
-            id: 3,
-            nombre: 'Finanzas para No Financieros',
-            tema: 'Finanzas',
-            estado: 'activo',
-            semanas: 5,
-            cupos: 20,
-            ocupados: 14,
-            descripcion: 'Entiende flujos de caja, punto de equilibrio e inversión.'
-        },
-        {
-            id: 4,
-            nombre: 'Liderazgo y Gestión de Equipos',
-            tema: 'Liderazgo',
-            estado: 'inactivo',
-            semanas: 7,
-            cupos: 20,
-            ocupados: 9,
-            descripcion: 'Habilidades de liderazgo para construir equipos de alto rendimiento.'
-        },
-        {
-            id: 5,
-            nombre: 'E-commerce: Vende en Línea',
-            tema: 'Ventas',
-            estado: 'activo',
-            semanas: 6,
-            cupos: 30,
-            ocupados: 27,
-            descripcion: 'Crea tu tienda en línea y escala tus ventas digitales.'
-        },
-        {
-            id: 6,
-            nombre: 'Atención al Cliente y Fidelización',
-            tema: 'Ventas',
-            estado: 'finalizado',
-            semanas: 4,
-            cupos: 25,
-            ocupados: 11,
-            descripcion: 'Estrategias para retener clientes y hacer crecer tu negocio.'
-        }
-    ];
-
-    const inicial = {
-        perfil: {
-            nombre: 'María García',
-            correo: 'maria@panaderia.com',
-            telefono: '3101234567',
-            direccion: 'Calle 12 #34-56, Barrio Centro',
-            emprendimiento: 'Panadería El Trigal',
-            actividad: 'Panadería / Repostería',
-            sector: 'Alimentación',
-            registro: '2024-03-10',
-            estado: 'activo'
-        },
-
-        inscripciones: [
-            { id: 1, progreso: 75, fecha: '2024-07-02' },
-            { id: 2, progreso: 50, fecha: '2024-07-16' },
-            { id: 6, progreso: 100, fecha: '2024-05-02' }
-        ],
-
-        productos: [
-            {
-                codigo: 'PAN-001',
-                nombre: 'Pan de trigo (unidad)',
-                categoria: 'Panadería',
-                compra: 500,
-                venta: 800,
-                stock: 120
-            },
-            {
-                codigo: 'PAN-002',
-                nombre: 'Croissant',
-                categoria: 'Repostería',
-                compra: 1200,
-                venta: 2000,
-                stock: 45
-            },
-            {
-                codigo: 'PAN-003',
-                nombre: 'Torta de cumpleaños (libra)',
-                categoria: 'Repostería',
-                compra: 8000,
-                venta: 15000,
-                stock: 8
-            },
-            {
-                codigo: 'PAN-004',
-                nombre: 'Almojábana (unidad)',
-                categoria: 'Panadería',
-                compra: 600,
-                venta: 1000,
-                stock: 80
-            }
-        ],
-
-        ventas: [
-            {
-                fecha: '2026-10-22',
-                nota: 'Venta mañana',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 20,
-                        precio: 800
-                    },
-                    {
-                        codigo: 'PAN-002',
-                        nombre: 'Croissant',
-                        cantidad: 8,
-                        precio: 2000
-                    }
-                ],
-                total: 32000
-            },
-            {
-                fecha: '2026-10-22',
-                nota: 'Venta tarde',
-                items: [
-                    {
-                        codigo: 'PAN-004',
-                        nombre: 'Almojábana (unidad)',
-                        cantidad: 15,
-                        precio: 1000
-                    }
-                ],
-                total: 15000
-            },
-            {
-                fecha: '2026-10-21',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 30,
-                        precio: 800
-                    },
-                    {
-                        codigo: 'PAN-003',
-                        nombre: 'Torta de cumpleaños (libra)',
-                        cantidad: 1,
-                        precio: 15000
-                    }
-                ],
-                total: 39000
-            },
-            {
-                fecha: '2026-10-20',
-                items: [
-                    {
-                        codigo: 'PAN-002',
-                        nombre: 'Croissant',
-                        cantidad: 12,
-                        precio: 2000
-                    },
-                    {
-                        codigo: 'PAN-004',
-                        nombre: 'Almojábana (unidad)',
-                        cantidad: 20,
-                        precio: 1000
-                    }
-                ],
-                total: 44000
-            },
-            {
-                fecha: '2026-10-19',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 25,
-                        precio: 800
-                    }
-                ],
-                total: 20000
-            },
-            {
-                fecha: '2026-10-18',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 18,
-                        precio: 800
-                    },
-                    {
-                        codigo: 'PAN-002',
-                        nombre: 'Croissant',
-                        cantidad: 5,
-                        precio: 2000
-                    }
-                ],
-                total: 24400
-            },
-            {
-                fecha: '2026-10-17',
-                items: [
-                    {
-                        codigo: 'PAN-003',
-                        nombre: 'Torta de cumpleaños (libra)',
-                        cantidad: 2,
-                        precio: 15000
-                    },
-                    {
-                        codigo: 'PAN-004',
-                        nombre: 'Almojábana (unidad)',
-                        cantidad: 10,
-                        precio: 1000
-                    }
-                ],
-                total: 40000
-            },
-            {
-                fecha: '2026-10-14',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 35,
-                        precio: 800
-                    }
-                ],
-                total: 28000
-            },
-            {
-                fecha: '2026-10-10',
-                items: [
-                    {
-                        codigo: 'PAN-002',
-                        nombre: 'Croissant',
-                        cantidad: 10,
-                        precio: 2000
-                    },
-                    {
-                        codigo: 'PAN-003',
-                        nombre: 'Torta de cumpleaños (libra)',
-                        cantidad: 1,
-                        precio: 15000
-                    }
-                ],
-                total: 35000
-            },
-            {
-                fecha: '2026-10-02',
-                items: [
-                    {
-                        codigo: 'PAN-001',
-                        nombre: 'Pan de trigo (unidad)',
-                        cantidad: 40,
-                        precio: 800
-                    },
-                    {
-                        codigo: 'PAN-004',
-                        nombre: 'Almojábana (unidad)',
-                        cantidad: 30,
-                        precio: 1000
-                    }
-                ],
-                total: 62000
-            }
-        ]
-    };
-
-    
-    // ALMACENAMIENTO LOCAL + SINCRONIZACIÓN ENTRE ROLES
-
-    const CLAVE_LOCAL = 'impulsa-emprendedor-demo-v1';
-    const ID_EMPRENDEDOR = 'emp-maria-garcia';
-
-    let datos;
-
-    try {
-        const guardado = JSON.parse(
-            localStorage.getItem(CLAVE_LOCAL)
-        );
-
-        datos = guardado &&
-            guardado.perfil &&
-            Array.isArray(guardado.productos) &&
-            Array.isArray(guardado.ventas) &&
-            Array.isArray(guardado.inscripciones)
-                ? guardado
-                : structuredClone(inicial);
-
-    } catch {
-        datos = structuredClone(inicial);
+    if (!usuario || !usuario.id) {
+        console.error('No se encontró el usuario autenticado.');
+        return;
     }
 
-    // Publicar información para los demás roles.
+    // ========================================
+    // CONFIGURACIÓN
+    // ========================================
 
-    function sincronizarCompartidos() {
-        if (!window.ImpulsaDatos) return;
+    const CLAVE_LOCAL =
+        `impulsa-local-negocio-usuario-${usuario.id}-v1`;
 
-        const compartidos = ImpulsaDatos.obtenerDatos();
-
-        const emprendedor = {
-            id: ID_EMPRENDEDOR,
-            ...datos.perfil
-        };
-
-        const indice = compartidos.emprendedores.findIndex(
-            e => e.id === ID_EMPRENDEDOR
-        );
-
-        if (indice === -1) {
-            compartidos.emprendedores.push(emprendedor);
-        } else {
-            compartidos.emprendedores[indice] = {
-                ...compartidos.emprendedores[indice],
-                ...emprendedor
-            };
+    const formatoDinero = new Intl.NumberFormat(
+        'es-CO',
+        {
+            style: 'currency',
+            currency: 'COP',
+            maximumFractionDigits: 0
         }
+    );
 
-        // Sincronizar inscripciones de este emprendedor.
+    const $ = (selector) =>
+        document.querySelector(selector);
 
-        compartidos.inscripciones =
-            compartidos.inscripciones.filter(
-                i => i.emprendedorId !== ID_EMPRENDEDOR
-            );
+    const $$ = (selector) =>
+        document.querySelectorAll(selector);
 
-        compartidos.inscripciones.push(
-            ...datos.inscripciones.map(i => ({
-                id: `${ID_EMPRENDEDOR}-programa-${i.id}`,
-                emprendedorId: ID_EMPRENDEDOR,
-                emprendedor: datos.perfil.nombre,
-                emprendimiento: datos.perfil.emprendimiento,
-                programaId: i.id,
-                programa: programas.find(
-                    p => p.id === i.id
-                )?.nombre || '',
-                progreso: i.progreso,
-                fecha: i.fecha,
-                estado: i.progreso >= 100
-                    ? 'completado'
-                    : 'en curso'
-            }))
-        );
+    function fechaLocal() {
+        const fecha = new Date();
 
-        // Sincronizar reportes de avance.
-
-        compartidos.reportesAvance =
-            compartidos.reportesAvance.filter(
-                r => r.emprendedorId !== ID_EMPRENDEDOR
-            );
-
-        compartidos.reportesAvance.push(
-            ...(datos.reportesAvance || []).map(r => ({
-                ...r,
-                emprendedorId: ID_EMPRENDEDOR,
-                emprendedor: datos.perfil.nombre,
-                emprendimiento: datos.perfil.emprendimiento,
-                programa: programas.find(
-                    p => p.id === r.programaId
-                )?.nombre || ''
-            }))
-        );
-
-        ImpulsaDatos.guardarDatos(compartidos);
+        return [
+            fecha.getFullYear(),
+            String(fecha.getMonth() + 1).padStart(2, '0'),
+            String(fecha.getDate()).padStart(2, '0')
+        ].join('-');
     }
 
-    // Guardar sin perder inventario ni ventas.
+    function nuevoId() {
+        return Date.now().toString(36) +
+            Math.random().toString(36).slice(2, 9);
+    }
 
-    const guardar = () => {
-        localStorage.setItem(
-            CLAVE_LOCAL,
-            JSON.stringify(datos)
-        );
+    function textoSeguro(valor) {
+        return String(valor ?? '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
 
-        sincronizarCompartidos();
-    };
+    function mostrarMensaje(texto, error = false) {
+        const contenedor = $('#mensajeSistema');
 
-    // Leer cambios de progreso registrados por otros roles.
+        if (!contenedor) return;
 
-    function importarProgresos() {
-        if (!window.ImpulsaDatos) return false;
+        contenedor.textContent = texto;
+        contenedor.className = error
+            ? 'il-alerta il-error'
+            : 'il-alerta';
+    }
 
-        const inscripciones =
-            ImpulsaDatos.obtenerColeccion('inscripciones')
-                .filter(
-                    i => i.emprendedorId === ID_EMPRENDEDOR
-                );
+    // ========================================
+    // DATOS DEL NEGOCIO
+    // ========================================
 
-        let cambios = false;
-
-        for (const remota of inscripciones) {
-            const local = datos.inscripciones.find(
-                i => i.id === Number(remota.programaId)
+    function cargarDatos() {
+        try {
+            const guardado = JSON.parse(
+                localStorage.getItem(CLAVE_LOCAL)
             );
 
             if (
-                local &&
-                Number.isFinite(Number(remota.progreso)) &&
-                local.progreso !== Number(remota.progreso)
+                guardado &&
+                Array.isArray(guardado.productos) &&
+                Array.isArray(guardado.ventas)
             ) {
-                local.progreso = Math.min(
-                    100,
-                    Math.max(0, Number(remota.progreso))
-                );
-
-                cambios = true;
+                return guardado;
             }
+        } catch (error) {
+            console.error(
+                'No fue posible recuperar los datos:',
+                error
+            );
         }
 
-        if (cambios) {
+        return {
+            productos: [],
+            ventas: []
+        };
+    }
+
+    let datos = cargarDatos();
+
+    function guardarDatos() {
+        try {
             localStorage.setItem(
                 CLAVE_LOCAL,
                 JSON.stringify(datos)
             );
-        }
-
-        return cambios;
-    }
-
-
-    // FUNCIONES GENERALES
-    const escape = s => String(s ?? '').replace(
-        /[&<>"']/g,
-        c => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        }[c])
-    );
-
-    const estadoIns = i =>
-        i.progreso === 100 ? 'completado' : 'en curso';
-
-    const barra = p => `
-        <div class="barra">
-            <div class="relleno"
-                 style="width:${Math.min(100, Math.max(0, p))}%">
-            </div>
-        </div>
-    `;
-
-    const badge = s => `
-        <span class="estado ${s === 'en curso' ? 'curso' : escape(s)}">
-            ${escape(s)}
-        </span>
-    `;
-
-    const mensaje = s => {
-        const m = $('mensaje');
-        m.textContent = s;
-        m.style.display = 'block';
-
-        clearTimeout(m._timer);
-
-        m._timer = setTimeout(() => {
-            m.style.display = 'none';
-        }, 3500);
-    };
-
-    // MI PERFIL
-    function renderPerfil() {
-        const p = datos.perfil;
-
-        $('usuarioNombre').textContent = p.nombre;
-
-        const campos = [
-            ['Nombre completo', p.nombre],
-            ['Correo electrónico', p.correo],
-            ['Teléfono', p.telefono],
-            ['Dirección', p.direccion],
-            ['Emprendimiento', p.emprendimiento],
-            ['Actividad económica', p.actividad],
-            ['Sector', p.sector],
-            ['Fecha de registro', p.registro]
-        ];
-
-        $('perfilLectura').innerHTML = `
-            <div class="cabecera-bloque">
-                <h2>Información personal</h2>
-                <button id="editarPerfil" class="btn enlace">
-                    Editar
-                </button>
-            </div>
-
-            <div class="datos-perfil">
-                ${campos.map(([nombre, valor]) => `
-                    <div class="dato-perfil">
-                        <small>${escape(nombre.toUpperCase())}</small>
-                        <div>${escape(valor)}</div>
-                    </div>
-                `).join('')}
-
-                <div class="dato-perfil">
-                    <small>ESTADO</small>
-                    <div>${badge(p.estado)}</div>
-                </div>
-            </div>
-        `;
-
-        $('editarPerfil').onclick = () => {
-            const formulario = $('perfilFormulario');
-
-            for (const nombre of [
-                'emprendimiento',
-                'telefono',
-                'direccion',
-                'actividad'
-            ]) {
-                formulario.elements[nombre].value = p[nombre];
-            }
-
-            $('perfilLectura').hidden = true;
-            formulario.hidden = false;
-        };
-    }
-
-    $('actividadSelect').innerHTML = actividades.map(a =>
-        `<option>${escape(a)}</option>`
-    ).join('');
-
-    $('categoriaProducto').innerHTML = categorias.map(a =>
-        `<option>${escape(a)}</option>`
-    ).join('');
-
-    $('cancelarPerfil').onclick = () => {
-        $('perfilFormulario').hidden = true;
-        $('perfilLectura').hidden = false;
-    };
-
-    $('perfilFormulario').onsubmit = e => {
-        e.preventDefault();
-
-        const formulario = e.currentTarget;
-
-        for (const nombre of [
-            'emprendimiento',
-            'telefono',
-            'direccion',
-            'actividad'
-        ]) {
-            datos.perfil[nombre] =
-                formulario.elements[nombre].value.trim();
-        }
-
-        guardar();
-        renderPerfil();
-
-        formulario.hidden = true;
-        $('perfilLectura').hidden = false;
-
-        mensaje('Información actualizada');
-    };
-
-    // PROGRAMAS E INSCRIPCIONES
-    function renderProgramas() {
-        const inscripciones = datos.inscripciones;
-
-        $('tituloInscripciones').textContent =
-            `Mis inscripciones (${inscripciones.length})`;
-
-        $('inscripciones').innerHTML = inscripciones.map(i => {
-            const p = programas.find(x => x.id === i.id);
-
-            return `
-                <div class="inscripcion">
-                    <div>
-                        <strong>${escape(p.nombre)}</strong>
-                        <small>
-                            ${escape(p.tema)} · ${p.semanas} semanas
-                        </small>
-                    </div>
-
-                    <div class="progreso-inline">
-                        ${barra(i.progreso)}
-                        <strong>${i.progreso}%</strong>
-                        ${badge(estadoIns(i))}
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        const tema = $('filtroTematica').value;
-        const estado = $('filtroEstado').value;
-
-        const filtrados = programas.filter(p =>
-            (!tema || p.tema === tema) &&
-            (!estado || p.estado === estado)
-        );
-
-        $('programasDisponibles').innerHTML = filtrados.map(p => {
-            const inscrito = inscripciones.some(i => i.id === p.id);
-
-            const habilitado =
-                p.estado === 'activo' &&
-                p.ocupados < p.cupos;
-
-            let textoBoton = 'No disponible';
-            let claseBoton = 'btn-no';
-
-            if (inscrito) {
-                textoBoton = 'Ya estás inscrito/a ✓';
-                claseBoton = 'btn-inscrito';
-            } else if (habilitado) {
-                textoBoton = 'Inscribirme';
-                claseBoton = 'primario';
-            }
-
-            return `
-                <article class="tarjeta programa">
-                    <div class="cabecera-bloque">
-                        <h3>${escape(p.nombre)}</h3>
-                        ${badge(p.estado)}
-                    </div>
-
-                    <span class="tematica">${escape(p.tema)}</span>
-
-                    <p>${escape(p.descripcion)}</p>
-
-                    <div class="fila">
-                        <span>Instructor:</span>
-                        <span>Ana Instructora</span>
-                    </div>
-
-                    <div class="fila">
-                        <span>Duración:</span>
-                        <span>${p.semanas} semanas</span>
-                    </div>
-
-                    <div class="fila">
-                        <span>Cupos disponibles:</span>
-                        <span>${p.cupos - p.ocupados}/${p.cupos}</span>
-                    </div>
-
-                    <button
-                        class="btn btn-ancho ${claseBoton}"
-                        data-inscribir="${p.id}"
-                        ${inscrito || !habilitado ? 'disabled' : ''}>
-                        ${textoBoton}
-                    </button>
-                </article>
-            `;
-        }).join('');
-    }
-
-    const tematicas = [...new Set(programas.map(p => p.tema))];
-
-    $('filtroTematica').innerHTML =
-        '<option value="">Todas las temáticas</option>' +
-        tematicas.map(t => `<option>${escape(t)}</option>`).join('');
-
-    $('filtroTematica').onchange = renderProgramas;
-    $('filtroEstado').onchange = renderProgramas;
-
-    $('programasDisponibles').onclick = e => {
-        const boton = e.target.closest('[data-inscribir]');
-
-        if (!boton) return;
-
-        const id = Number(boton.dataset.inscribir);
-        const programa = programas.find(p => p.id === id);
-
-        if (
-            !programa ||
-            programa.estado !== 'activo' ||
-            programa.ocupados >= programa.cupos ||
-            datos.inscripciones.some(i => i.id === id)
-        ) {
-            return;
-        }
-
-        datos.inscripciones.push({
-            id,
-            progreso: 0,
-            fecha: hoy
-        });
-
-        programa.ocupados++;
-
-        guardar();
-        renderProgramas();
-        renderProgreso();
-
-        mensaje('Inscripción realizada correctamente');
-    };
-
-    // MI PROGRESO
-    function renderProgreso() {
-        $('detalleProgreso').innerHTML =
-            datos.inscripciones.map(i => {
-                const p = programas.find(p => p.id === i.id);
-
-                return `
-                    <div class="detalle">
-                        <div class="cabecera-bloque">
-                            <strong>${escape(p.nombre)}</strong>
-                            <span>
-                                ${badge(estadoIns(i))}
-                                &nbsp;
-                                <strong>${i.progreso}%</strong>
-                            </span>
-                        </div>
-
-                        ${barra(i.progreso)}
-
-                        <small>Inscrito el ${escape(i.fecha)}</small>
-                    </div>
-                `;
-            }).join('');
-
-        const seguimientos = [
-            {
-                fecha: '2024-07-10',
-                tipo: 'visita',
-                nota: 'Emprendedora con gran avance en el módulo de plan de negocios. Cumple con todas las tareas.'
-            },
-            {
-                fecha: '2024-08-05',
-                tipo: 'llamada',
-                nota: 'Se realizó llamada de seguimiento. Reporta dificultades con el presupuesto inicial.'
-            }
-        ];
-
-        $('seguimientos').innerHTML = seguimientos.map(s => `
-            <div class="seguimiento">
-                <div class="cabecera-bloque">
-                    <small>
-                        ${escape(s.fecha)}
-                        &nbsp;
-                        <span class="estado curso">${escape(s.tipo)}</span>
-                    </small>
-                    <small>Por: Laura Funcionaria</small>
-                </div>
-                <p>${escape(s.nota)}</p>
-            </div>
-        `).join('');
-    }
-
-    // INVENTARIO
-    let editando = null;
-
-    function renderInventario() {
-        const productos = datos.productos;
-
-        const total = productos.reduce(
-            (acumulado, p) => acumulado + p.compra * p.stock,
-            0
-        );
-
-        const potencial = productos.reduce(
-            (acumulado, p) => acumulado + p.venta * p.stock,
-            0
-        );
-
-        const bajos = productos.filter(p => p.stock <= 10);
-
-        $('totalProductos').textContent = productos.length;
-        $('valorInventario').textContent = dinero(total);
-        $('valorPotencial').textContent = dinero(potencial);
-        $('cantidadBajo').textContent = bajos.length;
-
-        $('alertasStock').innerHTML = bajos.map(p => `
-            <div class="alerta">
-                ⚠️ &nbsp;
-                <strong>Stock bajo en: ${escape(p.nombre)}</strong>
-                <div>
-                    Considera reabastecer pronto para no quedarte sin producto.
-                </div>
-            </div>
-        `).join('');
-
-        const busqueda = $('buscarProducto').value.toLowerCase().trim();
-
-        const filtrados = productos.filter(p =>
-            [p.codigo, p.nombre, p.categoria].some(valor =>
-                valor.toLowerCase().includes(busqueda)
-            )
-        );
-
-        $('filasInventario').innerHTML = filtrados.map(p => {
-            const margen = p.venta
-                ? Math.round((p.venta - p.compra) / p.venta * 100)
-                : 0;
-
-            return `
-                <tr>
-                    <td>${escape(p.codigo)}</td>
-                    <td>${escape(p.nombre)}</td>
-
-                    <td>
-                        <span class="estado curso">
-                            ${escape(p.categoria)}
-                        </span>
-                    </td>
-
-                    <td>${dinero(p.compra)}</td>
-                    <td><strong>${dinero(p.venta)}</strong></td>
-
-                    <td class="verde">
-                        <strong>${margen}%</strong>
-                    </td>
-
-                    <td>
-                        <span class="stock ${p.stock <= 10 ? 'bajo' : ''}">
-                            ${p.stock} und.
-                        </span>
-                    </td>
-
-                    <td>
-                        <button class="accion-link"
-                                data-editar="${escape(p.codigo)}">
-                            Editar
-                        </button>
-
-                        <button class="accion-link peligro"
-                                data-eliminar="${escape(p.codigo)}">
-                            Eliminar
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('') || `
-            <tr>
-                <td colspan="8">No hay productos que coincidan.</td>
-            </tr>
-        `;
-    }
-
-    $('buscarProducto').oninput = renderInventario;
-
-    function abrirProducto(codigo = null) {
-        editando = codigo;
-
-        const producto = datos.productos.find(
-            p => p.codigo === codigo
-        );
-
-        const formulario = $('formProducto');
-        formulario.reset();
-
-        $('tituloModalProducto').textContent = producto
-            ? 'Editar producto'
-            : 'Nuevo producto';
-
-        if (producto) {
-            for (const nombre of [
-                'nombre', 'codigo', 'categoria',
-                'compra', 'venta', 'stock'
-            ]) {
-                formulario.elements[nombre].value = producto[nombre];
-            }
-        }
-
-        formulario.elements.codigo.readOnly = !!producto;
-
-        $('modalProducto').showModal();
-    }
-
-    $('nuevoProducto').onclick = () => abrirProducto();
-
-    $('filasInventario').onclick = e => {
-        const boton = e.target.closest('button');
-
-        if (!boton) return;
-
-        if (boton.dataset.editar) {
-            abrirProducto(boton.dataset.editar);
-        }
-
-        if (boton.dataset.eliminar) {
-            const producto = datos.productos.find(
-                p => p.codigo === boton.dataset.eliminar
+            return true;
+        } catch (error) {
+            console.error(error);
+
+            mostrarMensaje(
+                'No fue posible guardar los datos en este navegador.',
+                true
             );
 
-            if (producto && confirm(`¿Eliminar ${producto.nombre}?`)) {
-                datos.productos = datos.productos.filter(
-                    p => p.codigo !== producto.codigo
-                );
-
-                guardar();
-                renderInventario();
-                mensaje('Producto eliminado');
-            }
+            return false;
         }
-    };
+    }
 
-    $('formProducto').onsubmit = e => {
-        e.preventDefault();
+    // ========================================
+    // NAVEGACIÓN PRINCIPAL
+    // ========================================
 
-        const formulario = e.currentTarget;
+    function mostrarVista(nombre) {
+        $$('.vista').forEach(function (vista) {
+            const activa =
+                vista.id === `vista-${nombre}`;
+
+            vista.hidden = !activa;
+            vista.classList.toggle('activa', activa);
+        });
+
+        $$('.pestana[data-vista]').forEach(function (boton) {
+            boton.classList.toggle(
+                'activa',
+                boton.dataset.vista === nombre
+            );
+        });
+
+        if (nombre === 'negocio') {
+            renderizarInventario();
+            renderizarVentas();
+        }
+    }
+
+    $$('.pestana[data-vista]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            mostrarVista(boton.dataset.vista);
+        });
+    });
+
+    // ========================================
+    // PERFIL REAL DESDE LARAVEL
+    // ========================================
+
+    const botonEditar = $('#editarPerfil');
+    const botonCancelar = $('#cancelarPerfil');
+    const perfilLectura = $('#perfilLectura');
+    const perfilFormulario = $('#perfilFormulario');
+
+    if (botonEditar && perfilFormulario) {
+        botonEditar.addEventListener('click', function () {
+            perfilLectura.hidden = true;
+            perfilFormulario.hidden = false;
+        });
+    }
+
+    if (botonCancelar && perfilFormulario) {
+        botonCancelar.addEventListener('click', function () {
+            perfilFormulario.hidden = true;
+            perfilLectura.hidden = false;
+        });
+    }
+
+    // El formulario del perfil se envía a Laravel
+    // mediante PUT /emprendedor/perfil.
+    // No se guarda el perfil personal en localStorage.
+
+    // ========================================
+    // NAVEGACIÓN INVENTARIO / VENTAS
+    // ========================================
+
+    function mostrarNegocio(nombre) {
+        const inventario = $('#negocio-inventario');
+        const ventas = $('#negocio-ventas');
+
+        if (inventario) {
+            inventario.hidden = nombre !== 'inventario';
+        }
+
+        if (ventas) {
+            ventas.hidden = nombre !== 'ventas';
+        }
+
+        $$('[data-negocio]').forEach(function (boton) {
+            const activo = boton.dataset.negocio === nombre;
+
+            boton.classList.toggle('activo', activo);
+            boton.classList.toggle('secundario', !activo);
+        });
+    }
+
+    $$('[data-negocio]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            mostrarNegocio(boton.dataset.negocio);
+        });
+    });
+
+    // ========================================
+    // INVENTARIO
+    // ========================================
+
+    function renderizarInventario() {
+        const cuerpo = $('#filasInventario');
+
+        if (!cuerpo) return;
+
+        const busqueda = (
+            $('#buscarProducto')?.value || ''
+        ).toLowerCase().trim();
+
+        const productos = datos.productos.filter(function (producto) {
+            const contenido = [
+                producto.nombre,
+                producto.codigo,
+                producto.categoria
+            ].join(' ').toLowerCase();
+
+            return contenido.includes(busqueda);
+        });
+
+        cuerpo.innerHTML = '';
+
+        productos.forEach(function (producto) {
+            const fila = document.createElement('tr');
+
+            fila.innerHTML = `
+                <td>${textoSeguro(producto.codigo)}</td>
+                <td>${textoSeguro(producto.nombre)}</td>
+                <td>${textoSeguro(producto.categoria)}</td>
+                <td>${formatoDinero.format(producto.compra)}</td>
+                <td>${formatoDinero.format(producto.venta)}</td>
+                <td>
+                    ${producto.stock}
+                    ${producto.stock <= 10
+                        ? '<span class="il-peligro"> Bajo</span>'
+                        : ''}
+                </td>
+                <td>
+                    <button
+                        type="button"
+                        class="il-boton secundario"
+                        data-editar="${textoSeguro(producto.id)}">
+                        Editar
+                    </button>
+
+                    <button
+                        type="button"
+                        class="il-boton secundario"
+                        data-eliminar="${textoSeguro(producto.id)}">
+                        Eliminar
+                    </button>
+                </td>
+            `;
+
+            cuerpo.appendChild(fila);
+        });
+
+        const total = datos.productos.length;
+
+        const valorInventario = datos.productos.reduce(
+            (suma, producto) =>
+                suma + producto.compra * producto.stock,
+            0
+        );
+
+        const valorPotencial = datos.productos.reduce(
+            (suma, producto) =>
+                suma + producto.venta * producto.stock,
+            0
+        );
+
+        const bajo = datos.productos.filter(
+            producto => producto.stock <= 10
+        ).length;
+
+        $('#totalProductos').textContent = total;
+
+        $('#valorInventario').textContent =
+            formatoDinero.format(valorInventario);
+
+        $('#valorPotencial').textContent =
+            formatoDinero.format(valorPotencial);
+
+        $('#cantidadBajo').textContent = bajo;
+
+        $('#sinProductos').hidden = productos.length > 0;
+    }
+
+    $('#buscarProducto')?.addEventListener(
+        'input',
+        renderizarInventario
+    );
+
+    // ========================================
+    // MODAL PRODUCTO
+    // ========================================
+
+    const modalProducto = $('#modalProducto');
+    const formProducto = $('#formProducto');
+
+    $('#nuevoProducto')?.addEventListener('click', function () {
+        formProducto.reset();
+        formProducto.elements.producto_id.value = '';
+
+        $('#tituloModalProducto').textContent =
+            'Nuevo producto';
+
+        modalProducto.showModal();
+    });
+
+    formProducto?.addEventListener('submit', function (evento) {
+        evento.preventDefault();
+
+        const formulario = new FormData(formProducto);
+
+        const idActual = formulario.get('producto_id');
 
         const producto = {
-            nombre: formulario.elements.nombre.value.trim(),
-            codigo: formulario.elements.codigo.value.trim(),
-            categoria: formulario.elements.categoria.value,
-            compra: Number(formulario.elements.compra.value),
-            venta: Number(formulario.elements.venta.value),
-            stock: Number(formulario.elements.stock.value)
+            id: idActual || nuevoId(),
+            nombre: String(formulario.get('nombre')).trim(),
+            codigo: String(formulario.get('codigo')).trim(),
+            categoria: String(formulario.get('categoria')).trim(),
+            compra: Number(formulario.get('compra')),
+            venta: Number(formulario.get('venta')),
+            stock: Number(formulario.get('stock'))
         };
-
-        const valores = [
-            producto.compra,
-            producto.venta,
-            producto.stock
-        ];
 
         if (
             !producto.nombre ||
             !producto.codigo ||
-            valores.some(n => !Number.isFinite(n) || n < 0) ||
-            !Number.isInteger(producto.stock)
+            !producto.categoria ||
+            !Number.isFinite(producto.compra) ||
+            !Number.isFinite(producto.venta) ||
+            !Number.isInteger(producto.stock) ||
+            producto.compra < 0 ||
+            producto.venta < 0 ||
+            producto.stock < 0
         ) {
-            mensaje('Revisa los datos del producto');
+            mostrarMensaje(
+                'Verifica los datos del producto.',
+                true
+            );
             return;
         }
 
-        const codigoExiste = datos.productos.some(
-            p => p.codigo.toLowerCase() === producto.codigo.toLowerCase()
+        const codigoDuplicado = datos.productos.some(
+            existente =>
+                existente.codigo.toLowerCase() ===
+                    producto.codigo.toLowerCase() &&
+                existente.id !== producto.id
         );
 
-        if (!editando && codigoExiste) {
-            mensaje('El código ya existe');
+        if (codigoDuplicado) {
+            mostrarMensaje(
+                'Ya existe un producto con ese código.',
+                true
+            );
             return;
         }
 
-        if (editando) {
-            const indice = datos.productos.findIndex(
-                p => p.codigo === editando
-            );
+        const posicion = datos.productos.findIndex(
+            existente => existente.id === producto.id
+        );
 
-            if (indice >= 0) {
-                datos.productos[indice] = producto;
-            }
+        if (posicion >= 0) {
+            datos.productos[posicion] = producto;
         } else {
             datos.productos.push(producto);
         }
 
-        guardar();
-        $('modalProducto').close();
-        renderInventario();
+        guardarDatos();
+        renderizarInventario();
 
-        mensaje('Producto guardado');
-    };
+        modalProducto.close();
 
-    // VENTAS
-    let periodo = 'hoy';
-
-    function filtrarVentas(periodoSeleccionado) {
-        return datos.ventas.filter(v => {
-            if (periodoSeleccionado === 'hoy') {
-                return v.fecha === hoy;
-            }
-
-            if (periodoSeleccionado === 'semana') {
-                return v.fecha >= '2026-10-16' && v.fecha <= hoy;
-            }
-
-            return v.fecha.startsWith('2026-10');
-        });
-    }
-
-    function renderVentas() {
-        const periodos = [
-            ['hoy', 'Hoy'],
-            ['semana', 'Semana'],
-            ['mes', 'Mes']
-        ];
-
-        for (const [periodoActual, sufijo] of periodos) {
-            const ventas = filtrarVentas(periodoActual);
-
-            const total = ventas.reduce(
-                (acumulado, v) => acumulado + v.total,
-                0
-            );
-
-            $('ventas' + sufijo).textContent = dinero(total);
-            $('registros' + sufijo).textContent =
-                `${ventas.length} registro(s)`;
-        }
-
-        const ventas = filtrarVentas(periodo);
-
-        const titulos = {
-            hoy: 'Ventas de hoy',
-            semana: 'Ventas de la semana',
-            mes: 'Ventas del mes'
-        };
-
-        $('tituloVentas').textContent = titulos[periodo];
-
-        const total = ventas.reduce(
-            (acumulado, v) => acumulado + v.total,
-            0
+        mostrarMensaje(
+            'Producto guardado correctamente.'
         );
-
-        $('totalPeriodo').textContent = dinero(total);
-        $('cantidadPeriodo').textContent =
-            `${ventas.length} registro(s)`;
-
-        // AGRUPAR VENTAS POR FECHA
-        const grupos = {};
-
-        for (const venta of ventas) {
-            if (!grupos[venta.fecha]) {
-                grupos[venta.fecha] = [];
-            }
-
-            grupos[venta.fecha].push(venta);
-        }
-
-        const maximo = Math.max(
-            1,
-            ...Object.values(grupos).map(grupo =>
-                grupo.reduce((suma, v) => suma + v.total, 0)
-            )
-        );
-
-        $('graficoVentas').innerHTML =
-            Object.entries(grupos)
-                .sort((a, b) => b[0].localeCompare(a[0]))
-                .map(([fecha, grupo]) => {
-                    const totalDia = grupo.reduce(
-                        (suma, v) => suma + v.total,
-                        0
-                    );
-
-                    const porcentaje = Math.round(
-                        totalDia / maximo * 100
-                    );
-
-                    return `
-                        <div class="dia-venta">
-                            <span>${fecha === hoy ? 'Hoy' : fecha}</span>
-
-                            <div>
-                                ${barra(porcentaje)}
-
-                                ${grupo.map(v => `
-                                    <div class="detalle-venta">
-                                        <span class="punto">●</span>
-
-                                        ${v.items.map(i =>
-                                            `${escape(i.nombre)} ×${i.cantidad}`
-                                        ).join(' · ')}
-
-                                        ${v.nota ? '— ' + escape(v.nota) : ''}
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div class="monto">${dinero(totalDia)}</div>
-                        </div>
-                    `;
-                }).join('') ||
-            '<p>Sin ventas registradas en este período.</p>';
-
-        // PRODUCTOS MÁS VENDIDOS
-        const conteo = {};
-
-        for (const venta of ventas) {
-            for (const item of venta.items) {
-                const codigo = item.codigo;
-
-                if (!conteo[codigo]) {
-                    conteo[codigo] = {
-                        nombre: item.nombre,
-                        cantidad: 0,
-                        total: 0
-                    };
-                }
-
-                conteo[codigo].cantidad += item.cantidad;
-                conteo[codigo].total += item.cantidad * item.precio;
-            }
-        }
-
-        const ordenados = Object.values(conteo)
-            .sort((a, b) => b.total - a.total);
-
-        const mayor = Math.max(
-            1,
-            ...ordenados.map(p => p.total)
-        );
-
-        $('masVendidos').innerHTML = ordenados.map(p => `
-            <div class="ranking">
-                <div class="cabecera-bloque">
-                    <span>${escape(p.nombre)}</span>
-
-                    <span>
-                        ${p.cantidad} und. &nbsp;
-                        <strong>${dinero(p.total)}</strong>
-                    </span>
-                </div>
-
-                <div class="barra">
-                    <div class="relleno"
-                         style="width:${p.total / mayor * 100}%">
-                    </div>
-                </div>
-            </div>
-        `).join('') || '<p>Sin productos vendidos.</p>';
-    }
-
-    // CAMBIAR PERÍODO DE VENTAS
-    document.querySelectorAll('[data-periodo]').forEach(boton => {
-        boton.onclick = () => {
-            periodo = boton.dataset.periodo;
-
-            document.querySelectorAll('[data-periodo]').forEach(b => {
-                b.classList.toggle('activo', b === boton);
-            });
-
-            renderVentas();
-        };
     });
 
-    // AGREGAR PRODUCTOS A UNA VENTA
-    function agregarLinea() {
-        const div = document.createElement('div');
-        div.className = 'linea-venta';
+    $('#filasInventario')?.addEventListener(
+        'click',
+        function (evento) {
 
-        div.innerHTML = `
-            <select class="producto-linea" aria-label="Producto">
-                <option value="">Seleccionar...</option>
+            const editar = evento.target.closest('[data-editar]');
+            const eliminar = evento.target.closest('[data-eliminar]');
 
-                ${datos.productos
-                    .filter(p => p.stock > 0)
-                    .map(p => `
-                        <option value="${escape(p.codigo)}">
-                            ${escape(p.nombre)}
-                        </option>
-                    `).join('')}
-            </select>
+            if (editar) {
+                const producto = datos.productos.find(
+                    item => item.id === editar.dataset.editar
+                );
 
-            <input class="cantidad-linea"
-                   type="number" min="1" step="1"
-                   value="1" aria-label="Cantidad">
+                if (!producto) return;
 
-            <input class="subtotal-linea"
-                   value="0" readonly aria-label="Subtotal">
+                formProducto.elements.producto_id.value =
+                    producto.id;
 
-            <button type="button" class="quitar"
-                    aria-label="Quitar producto">
-                ✕
-            </button>
+                formProducto.elements.nombre.value =
+                    producto.nombre;
 
-            <small class="disponible">
-                Stock disponible: — · Subtotal: $ 0
-            </small>
-        `;
+                formProducto.elements.codigo.value =
+                    producto.codigo;
 
-        $('lineasVenta').appendChild(div);
+                formProducto.elements.categoria.value =
+                    producto.categoria;
 
-        div.querySelector('.quitar').onclick = () => {
-            div.remove();
-            calcularVenta();
-        };
+                formProducto.elements.compra.value =
+                    producto.compra;
 
-        div.querySelectorAll('select, input').forEach(campo => {
-            campo.addEventListener('input', calcularVenta);
-        });
+                formProducto.elements.venta.value =
+                    producto.venta;
 
-        calcularVenta();
-    }
+                formProducto.elements.stock.value =
+                    producto.stock;
 
-    // CALCULAR TOTAL DE LA VENTA
-    function calcularVenta() {
-        let total = 0;
+                $('#tituloModalProducto').textContent =
+                    'Editar producto';
 
-        for (const linea of document.querySelectorAll('.linea-venta')) {
-            const codigo = linea.querySelector('select').value;
-
-            const producto = datos.productos.find(
-                p => p.codigo === codigo
-            );
-
-            const cantidad = Number(
-                linea.querySelector('.cantidad-linea').value
-            );
-
-            const subtotal =
-                producto &&
-                Number.isInteger(cantidad) &&
-                cantidad > 0
-                    ? producto.venta * cantidad
-                    : 0;
-
-            total += subtotal;
-
-            linea.querySelector('.subtotal-linea').value =
-                dinero(subtotal);
-
-            const disponible = linea.querySelector('.disponible');
-
-            disponible.textContent =
-                `Stock disponible: ${producto ? producto.stock : '—'}` +
-                ` · Subtotal: ${dinero(subtotal)}`;
-
-            disponible.style.color =
-                producto && cantidad > producto.stock
-                    ? 'red'
-                    : '';
-        }
-
-        $('totalNuevaVenta').textContent = dinero(total);
-    }
-
-    $('agregarLinea').onclick = agregarLinea;
-
-    $('nuevaVenta').onclick = () => {
-        $('formVenta').reset();
-        $('formVenta').elements.fecha.value = hoy;
-
-        $('lineasVenta').innerHTML = '';
-
-        agregarLinea();
-        $('modalVenta').showModal();
-    };
-
-    // GUARDAR VENTA Y DESCONTAR INVENTARIO
-    $('formVenta').onsubmit = e => {
-        e.preventDefault();
-
-        const formulario = e.currentTarget;
-        const fecha = formulario.elements.fecha.value;
-
-        const items = [];
-        const acumulado = {};
-
-        for (const linea of document.querySelectorAll('.linea-venta')) {
-            const codigo = linea.querySelector('select').value;
-
-            const producto = datos.productos.find(
-                p => p.codigo === codigo
-            );
-
-            const cantidad = Number(
-                linea.querySelector('.cantidad-linea').value
-            );
-
-            if (
-                !producto ||
-                !Number.isInteger(cantidad) ||
-                cantidad <= 0
-            ) {
-                mensaje('Selecciona un producto y una cantidad válida');
-                return;
+                modalProducto.showModal();
             }
 
-            acumulado[codigo] =
-                (acumulado[codigo] || 0) + cantidad;
+            if (eliminar) {
+                const id = eliminar.dataset.eliminar;
 
-            items.push({
-                codigo,
-                nombre: producto.nombre,
-                cantidad,
-                precio: producto.venta
-            });
+                if (!confirm(
+                    '¿Deseas eliminar este producto del inventario?'
+                )) {
+                    return;
+                }
+
+                datos.productos = datos.productos.filter(
+                    producto => producto.id !== id
+                );
+
+                guardarDatos();
+                renderizarInventario();
+
+                mostrarMensaje(
+                    'Producto eliminado del inventario.'
+                );
+            }
         }
+    );
 
-        if (!items.length) {
-            mensaje('Agrega un producto');
+    // ========================================
+    // VENTAS
+    // ========================================
+
+    const modalVenta = $('#modalVenta');
+    const formVenta = $('#formVenta');
+
+    $('#nuevaVenta')?.addEventListener('click', function () {
+        const disponibles = datos.productos.filter(
+            producto => producto.stock > 0
+        );
+
+        if (!disponibles.length) {
+            mostrarMensaje(
+                'Primero registra productos con stock disponible.',
+                true
+            );
             return;
         }
 
-        // VALIDAR EXISTENCIAS
-        for (const [codigo, cantidad] of Object.entries(acumulado)) {
-            const producto = datos.productos.find(
-                p => p.codigo === codigo
-            );
+        const selector = $('#productoVenta');
+        selector.innerHTML = '';
 
-            if (cantidad > producto.stock) {
-                mensaje(`Stock insuficiente de ${producto.nombre}`);
-                return;
-            }
-        }
+        disponibles.forEach(function (producto) {
+            const opcion = document.createElement('option');
 
-        // DESCONTAR PRODUCTOS VENDIDOS
-        for (const [codigo, cantidad] of Object.entries(acumulado)) {
-            const producto = datos.productos.find(
-                p => p.codigo === codigo
-            );
+            opcion.value = producto.id;
+            opcion.textContent =
+                `${producto.nombre} - Stock: ${producto.stock}`;
 
-            producto.stock -= cantidad;
-        }
-
-        const total = items.reduce(
-            (suma, item) => suma + item.cantidad * item.precio,
-            0
-        );
-
-        datos.ventas.push({
-            fecha,
-            nota: formulario.elements.nota.value.trim(),
-            items,
-            total
+            selector.appendChild(opcion);
         });
 
-        guardar();
+        formVenta.reset();
+        formVenta.elements.fecha.value = fechaLocal();
 
-        $('modalVenta').close();
-
-        renderInventario();
-        renderVentas();
-
-        mensaje('Venta registrada y stock actualizado');
-    };
-
-    // CERRAR VENTANAS
-    document.querySelectorAll('[data-cerrar]').forEach(boton => {
-        boton.onclick = () => {
-            $(boton.dataset.cerrar).close();
-        };
+        modalVenta.showModal();
     });
 
-    // EXPORTAR ARCHIVOS CSV
-    function exportarCSV(nombre, filas) {
-        const csv = '\ufeff' + filas.map(fila =>
-            fila.map(valor =>
-                '"' + String(valor ?? '').replace(/"/g, '""') + '"'
-            ).join(';')
+    formVenta?.addEventListener('submit', function (evento) {
+        evento.preventDefault();
+
+        const formulario = new FormData(formVenta);
+
+        const producto = datos.productos.find(
+            item =>
+                item.id === formulario.get('producto_id')
+        );
+
+        const cantidad = Number(
+            formulario.get('cantidad')
+        );
+
+        const fecha = String(
+            formulario.get('fecha') || ''
+        );
+
+        if (
+            !producto ||
+            !Number.isInteger(cantidad) ||
+            cantidad <= 0 ||
+            cantidad > producto.stock ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
+        ) {
+            mostrarMensaje(
+                'Verifica la cantidad, el producto y la fecha.',
+                true
+            );
+            return;
+        }
+
+        const venta = {
+            id: nuevoId(),
+            fecha: fecha,
+            producto_id: producto.id,
+            producto: producto.nombre,
+            cantidad: cantidad,
+            precio_unitario: producto.venta,
+            total: producto.venta * cantidad
+        };
+
+        producto.stock -= cantidad;
+
+        datos.ventas.push(venta);
+
+        guardarDatos();
+
+        renderizarInventario();
+        renderizarVentas();
+
+        modalVenta.close();
+
+        mostrarMensaje(
+            'Venta registrada y stock actualizado correctamente.'
+        );
+    });
+
+    function obtenerInicioSemana(fecha) {
+        const resultado = new Date(
+            fecha.getFullYear(),
+            fecha.getMonth(),
+            fecha.getDate()
+        );
+
+        const dia = (resultado.getDay() + 6) % 7;
+        resultado.setDate(resultado.getDate() - dia);
+
+        return resultado;
+    }
+
+    function renderizarVentas() {
+        const cuerpo = $('#filasVentas');
+
+        if (!cuerpo) return;
+
+        cuerpo.innerHTML = '';
+
+        const ventas = [...datos.ventas].sort(
+            (a, b) => b.fecha.localeCompare(a.fecha)
+        );
+
+        ventas.forEach(function (venta) {
+            const fila = document.createElement('tr');
+
+            fila.innerHTML = `
+                <td>${textoSeguro(venta.fecha)}</td>
+                <td>${textoSeguro(venta.producto)}</td>
+                <td>${venta.cantidad}</td>
+                <td>${formatoDinero.format(venta.total)}</td>
+            `;
+
+            cuerpo.appendChild(fila);
+        });
+
+        const hoy = fechaLocal();
+
+        const fechaActual = new Date();
+        const inicioSemana = obtenerInicioSemana(fechaActual);
+
+        const semana = [
+            inicioSemana.getFullYear(),
+            String(inicioSemana.getMonth() + 1).padStart(2, '0'),
+            String(inicioSemana.getDate()).padStart(2, '0')
+        ].join('-');
+
+        const mes = hoy.slice(0, 7);
+
+        const totalHoy = ventas
+            .filter(venta => venta.fecha === hoy)
+            .reduce((suma, venta) => suma + venta.total, 0);
+
+        const totalSemana = ventas
+            .filter(
+                venta =>
+                    venta.fecha >= semana &&
+                    venta.fecha <= hoy
+            )
+            .reduce((suma, venta) => suma + venta.total, 0);
+
+        const totalMes = ventas
+            .filter(
+                venta => venta.fecha.slice(0, 7) === mes
+            )
+            .reduce((suma, venta) => suma + venta.total, 0);
+
+        $('#ventasHoy').textContent =
+            formatoDinero.format(totalHoy);
+
+        $('#ventasSemana').textContent =
+            formatoDinero.format(totalSemana);
+
+        $('#ventasMes').textContent =
+            formatoDinero.format(totalMes);
+
+        $('#sinVentas').hidden = ventas.length > 0;
+    }
+
+    // ========================================
+    // EXPORTACIÓN CSV
+    // ========================================
+
+    function exportarCSV(nombre, encabezados, filas) {
+        function celda(valor) {
+            let texto = String(valor ?? '');
+
+            // Evitar interpretar contenido como fórmula
+            // al abrir el archivo en una hoja de cálculo.
+            if (/^[\s]*[=+\-@]/.test(texto)) {
+                texto = "'" + texto;
+            }
+
+            return '"' + texto.replaceAll('"', '""') + '"';
+        }
+
+        const contenido = [
+            encabezados,
+            ...filas
+        ].map(
+            fila => fila.map(celda).join(';')
         ).join('\r\n');
 
         const archivo = new Blob(
-            [csv],
-            { type: 'text/csv;charset=utf-8' }
+            ['\uFEFF', contenido],
+            {
+                type: 'text/csv;charset=utf-8'
+            }
         );
 
+        const enlace = document.createElement('a');
         const url = URL.createObjectURL(archivo);
 
-        const enlace = document.createElement('a');
         enlace.href = url;
         enlace.download = nombre;
 
@@ -1391,329 +672,81 @@ document.addEventListener('DOMContentLoaded', () => {
         enlace.click();
         enlace.remove();
 
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        URL.revokeObjectURL(url);
     }
 
-    $('exportarInventario').onclick = () => {
-        const encabezados = [
-            'Código',
-            'Nombre',
-            'Categoría',
-            'Precio compra',
-            'Precio venta',
-            'Stock'
-        ];
-
-        const filas = datos.productos.map(p => [
-            p.codigo,
-            p.nombre,
-            p.categoria,
-            p.compra,
-            p.venta,
-            p.stock
-        ]);
-
-        exportarCSV('inventario.csv', [encabezados, ...filas]);
-    };
-
-    $('exportarVentas').onclick = () => {
-        const encabezados = [
-            'Fecha',
-            'Nota',
-            'Producto',
-            'Cantidad',
-            'Precio unitario',
-            'Subtotal'
-        ];
-
-        const filas = filtrarVentas(periodo).flatMap(venta =>
-            venta.items.map(item => [
-                venta.fecha,
-                venta.nota || '',
-                item.nombre,
-                item.cantidad,
-                item.precio,
-                item.cantidad * item.precio
-            ])
-        );
-
-        exportarCSV(
-            'ventas-' + periodo + '.csv',
-            [encabezados, ...filas]
-        );
-    };
-
-    // NAVEGACIÓN PRINCIPAL
-    document.querySelectorAll('[data-vista]').forEach(boton => {
-        boton.onclick = () => {
-            document.querySelectorAll('[data-vista]').forEach(b => {
-                b.classList.toggle('activa', b === boton);
-            });
-
-            document.querySelectorAll('.vista').forEach(vista => {
-                vista.classList.toggle(
-                    'activa',
-                    vista.id === 'vista-' + boton.dataset.vista
-                );
-            });
-        };
-    });
-
-    // NAVEGACIÓN INVENTARIO Y VENTAS
-    document.querySelectorAll('[data-negocio]').forEach(boton => {
-        boton.onclick = () => {
-            document.querySelectorAll('[data-negocio]').forEach(b => {
-                b.classList.toggle('activa', b === boton);
-            });
-
-            $('negocio-inventario').hidden =
-                boton.dataset.negocio !== 'inventario';
-
-            $('negocio-ventas').hidden =
-                boton.dataset.negocio !== 'ventas';
-        };
-    });
-
-    
-// ==========================================
-// MÓDULO: REPORTES DE AVANCE DEL EMPRENDEDOR
-// ==========================================
-
-// Recuperar los reportes guardados.
-// Se usa una propiedad nueva para conservar
-// el inventario, las ventas y el perfil existentes.
-
-if (!Array.isArray(datos.reportesAvance)) {
-    datos.reportesAvance = [];
-}
-
-// Fecha actual en formato YYYY-MM-DD.
-function fechaLocalReporte() {
-    const fecha = new Date();
-
-    const anio = fecha.getFullYear();
-    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const dia = String(fecha.getDate()).padStart(2, '0');
-
-    return `${anio}-${mes}-${dia}`;
-}
-
-// Mostrar los reportes registrados.
-function renderReportesAvance() {
-    const contenedor = $('historialAvances');
-
-    if (datos.reportesAvance.length === 0) {
-        contenedor.innerHTML = `
-            <div class="reporte-vacio">
-                <strong>Aún no tienes reportes de avance.</strong>
-                <p>
-                    Registra tus logros y dificultades
-                    para llevar un seguimiento de tu emprendimiento.
-                </p>
-            </div>
-        `;
-
-        return;
-    }
-
-    const reportes = [...datos.reportesAvance].sort(
-        (a, b) => b.fecha.localeCompare(a.fecha)
-    );
-
-    contenedor.innerHTML = reportes.map(reporte => {
-        const programa = programas.find(
-            p => p.id === reporte.programaId
-        );
-
-        const nombrePrograma = programa
-            ? programa.nombre
-            : 'Programa no disponible';
-
-        return `
-            <article class="reporte-avance">
-
-                <div class="cabecera-bloque">
-                    <div>
-                        <h4>${escape(nombrePrograma)}</h4>
-
-                        <span class="reporte-fecha">
-                            Fecha: ${escape(reporte.fecha)}
-                        </span>
-                    </div>
-
-                    <span class="estado-reporte">
-                        Registrado
-                    </span>
-                </div>
-
-                <div class="reporte-contenido">
-                    <strong>Avances o logros obtenidos</strong>
-                    <p>${escape(reporte.logros)}</p>
-                </div>
-
-                <div class="reporte-contenido">
-                    <strong>Dificultades presentadas</strong>
-                    <p>${escape(reporte.dificultades)}</p>
-                </div>
-
-                <div class="reporte-contenido">
-                    <strong>Apoyo solicitado</strong>
-                    <p>${escape(reporte.apoyo)}</p>
-                </div>
-
-            </article>
-        `;
-    }).join('');
-}
-
-// Abrir formulario de reporte.
-$('abrirReporteAvance').addEventListener('click', () => {
-    const formulario = $('formReporteAvance');
-
-    formulario.reset();
-
-    const selector = $('programaReporte');
-
-    selector.innerHTML = `
-        <option value="">Selecciona un programa</option>
-    `;
-
-    // Solo mostrar programas en los que
-    // el emprendedor se encuentra inscrito.
-    datos.inscripciones.forEach(inscripcion => {
-        const programa = programas.find(
-            p => p.id === inscripcion.id
-        );
-
-        if (!programa) return;
-
-        const opcion = document.createElement('option');
-
-        opcion.value = programa.id;
-        opcion.textContent = programa.nombre;
-
-        selector.appendChild(opcion);
-    });
-
-    if (datos.inscripciones.length === 0) {
-        mensaje('Primero debes inscribirte en un programa');
-        return;
-    }
-
-    $('fechaReporte').value = fechaLocalReporte();
-    $('fechaReporte').max = fechaLocalReporte();
-
-    $('modalReporteAvance').showModal();
-});
-
-// Cancelar registro.
-$('cancelarReporteAvance').addEventListener('click', () => {
-    $('modalReporteAvance').close();
-});
-
-// Guardar reporte.
-$('formReporteAvance').addEventListener('submit', e => {
-    e.preventDefault();
-
-    const formulario = e.currentTarget;
-
-    const programaId = Number(
-        formulario.elements.programa.value
-    );
-
-    const fecha = formulario.elements.fecha.value;
-
-    const logros = formulario.elements.logros.value.trim();
-
-    const dificultades =
-        formulario.elements.dificultades.value.trim();
-
-    const apoyo = formulario.elements.apoyo.value.trim();
-
-    // Verificar que el programa esté inscrito.
-    const inscrito = datos.inscripciones.some(
-        i => i.id === programaId
-    );
-
-    if (!inscrito) {
-        mensaje('Selecciona un programa en el que estés inscrito');
-        return;
-    }
-
-    // Validar los campos obligatorios.
-    if (!fecha || !logros || !dificultades || !apoyo) {
-        mensaje('Completa todos los campos del reporte');
-        return;
-    }
-
-    // No permitir fechas futuras.
-    if (fecha > fechaLocalReporte()) {
-        mensaje('La fecha no puede ser futura');
-        return;
-    }
-
-    // Crear el reporte.
-    const nuevoReporte = {
-        id: crypto.randomUUID(),
-        programaId: programaId,
-        fecha: fecha,
-        logros: logros,
-        dificultades: dificultades,
-        apoyo: apoyo,
-        estado: 'registrado'
-    };
-
-    // Agregar el reporte al historial.
-    datos.reportesAvance.push(nuevoReporte);
-
-    // Guardar en localStorage mediante la
-    // función guardar() que ya tiene el proyecto.
-    guardar();
-
-    // Actualizar la información visible.
-    renderReportesAvance();
-
-    // Cerrar formulario.
-    $('modalReporteAvance').close();
-
-    // Limpiar campos.
-    formulario.reset();
-
-    // Mostrar confirmación.
-    mensaje('Reporte de avance guardado correctamente');
-});
-
-// Mostrar reportes al cargar la página.
-renderReportesAvance();
-
-    
-    // SINCRONIZACIÓN INICIAL ENTRE ROLES
-
-    importarProgresos();
-
-    sincronizarCompartidos();
-
-    // Escuchar cambios realizados desde otras pestañas.
-
-    window.addEventListener('storage', event => {
-
-        if (event.key !== 'impulsa-local-datos-v1') {
-            return;
+    $('#exportarInventario')?.addEventListener(
+        'click',
+        function () {
+            exportarCSV(
+                'inventario-impulsa-local.csv',
+                [
+                    'Código',
+                    'Producto',
+                    'Categoría',
+                    'Compra',
+                    'Venta',
+                    'Stock'
+                ],
+                datos.productos.map(producto => [
+                    producto.codigo,
+                    producto.nombre,
+                    producto.categoria,
+                    producto.compra,
+                    producto.venta,
+                    producto.stock
+                ])
+            );
         }
+    );
 
-        if (importarProgresos()) {
-            renderProgramas();
-            renderProgreso();
+    $('#exportarVentas')?.addEventListener(
+        'click',
+        function () {
+            exportarCSV(
+                'ventas-impulsa-local.csv',
+                [
+                    'Fecha',
+                    'Producto',
+                    'Cantidad',
+                    'Precio unitario',
+                    'Total'
+                ],
+                datos.ventas.map(venta => [
+                    venta.fecha,
+                    venta.producto,
+                    venta.cantidad,
+                    venta.precio_unitario,
+                    venta.total
+                ])
+            );
         }
+    );
 
+    // ========================================
+    // CERRAR MODALES
+    // ========================================
+
+    $$('[data-cerrar]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            const modal = document.getElementById(
+                boton.dataset.cerrar
+            );
+
+            if (modal) {
+                modal.close();
+            }
+        });
     });
 
+    // ========================================
+    // INICIALIZACIÓN
+    // ========================================
 
-    // CARGAR TODAS LAS SECCIONES
-    renderPerfil();
-    renderProgramas();
-    renderProgreso();
-    renderInventario();
-    renderVentas();
+    mostrarVista('perfil');
+    mostrarNegocio('inventario');
+
+    renderizarInventario();
+    renderizarVentas();
 
 });

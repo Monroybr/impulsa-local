@@ -412,3 +412,120 @@ footer {
 .errores-acceso li {
     margin-bottom: 4px;
 }
+
+/* ==========================================
+   ENCABEZADO - DISEÑO IMPULSA LOCAL
+   ========================================== */
+
+.encabezado {
+    background: #ffffff;
+    padding: 15px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    min-height: 86px;
+}
+
+/* Logo y nombre */
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #1b3959;
+    font-family: Georgia, serif;
+    font-size: 22px;
+    font-weight: bold;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.logo span {
+    display: inline-grid;
+    place-items: center;
+    width: 39px;
+    height: 39px;
+    padding: 0;
+    margin-right: 0;
+    background: #1b3959;
+    color: #ffbf00;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+}
+
+/* Menú de navegación */
+.encabezado nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.encabezado nav a {
+    color: #1b3959;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Línea amarilla en Cursos disponibles */
+.encabezado nav a[href*="cursos"] {
+    border-bottom: 2px solid #ffb900;
+    padding-bottom: 8px;
+}
+
+/* Botón Iniciar sesión */
+.encabezado nav a.nav-acceso {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1b3959;
+    color: #ffffff;
+    padding: 12px 23px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: none;
+    transition: background 0.2s ease;
+}
+
+.encabezado nav a.nav-acceso:hover {
+    background: #102b49;
+    color: #ffffff;
+}
+
+/* Adaptación a tablet */
+@media (max-width: 768px) {
+    .encabezado {
+        padding: 15px 5%;
+    }
+
+    .encabezado nav {
+        gap: 16px;
+    }
+
+    .logo {
+        font-size: 19px;
+    }
+}
+
+/* Adaptación a celular */
+@media (max-width: 600px) {
+    .encabezado {
+        padding: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .encabezado nav {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .encabezado nav a {
+        font-size: 12px;
+    }
+}
+

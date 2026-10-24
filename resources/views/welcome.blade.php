@@ -30,9 +30,7 @@
             <nav class="menu" id="menuPrincipal">
                 <a href="{{ route('inicio') }}" class="activo">Inicio</a>
                 <a href="{{ route('cursos') }}">Cursos disponibles</a>
-                <a href="{{ route('login') }}" class="boton-login">
-                    Iniciar sesión
-                </a>
+                <a href="{{ route('acceso') }}" class="btn-login">Iniciar sesión</a>
             </nav>
         </div>
     </header>
