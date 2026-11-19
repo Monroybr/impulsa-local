@@ -1,222 +1,38 @@
-
 document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
 
     // ==========================================
-    // DATOS DE DEMOSTRACIÓN
+    // CONFIGURACIÓN
     // ==========================================
 
-    const emprendedores = [
-        {
-            id: 1,
-            nombre: "María García",
-            correo: "maria@panaderia.com",
-            emprendimiento: "Panadería El Trigal",
-            actividad: "Panadería / Repostería",
-            sector: "Alimentación",
-            estado: "activo"
-        },
-        {
-            id: 2,
-            nombre: "Jorge Pérez",
-            correo: "jorge@artesanias.com",
-            emprendimiento: "Artesanías Pérez",
-            actividad: "Artesanías",
-            sector: "Cultura y Arte",
-            estado: "activo"
-        },
-        {
-            id: 3,
-            nombre: "Lucía Ramírez",
-            correo: "lucia@costura.com",
-            emprendimiento: "Modas Lucía",
-            actividad: "Costura / Confección",
-            sector: "Textil",
-            estado: "activo"
-        },
-        {
-            id: 4,
-            nombre: "Tomás Herrera",
-            correo: "tomas@taller.com",
-            emprendimiento: "Taller Herrera",
-            actividad: "Taller de reparaciones",
-            sector: "Servicios",
-            estado: "activo"
-        },
-        {
-            id: 5,
-            nombre: "Camila Torres",
-            correo: "camila@tienda.com",
-            emprendimiento: "Tienda La Esquina",
-            actividad: "Tienda de barrio",
-            sector: "Comercio",
-            estado: "activo"
-        },
-        {
-            id: 6,
-            nombre: "Andrés Molina",
-            correo: "andres@comidas.com",
-            emprendimiento: "Sabores Molina",
-            actividad: "Restaurante / Comida",
-            sector: "Alimentación",
-            estado: "inactivo"
-        }
-    ];
+    const RUTA_RESUMEN = "/coordinador/resumen";
+    const RUTA_PROGRAMAS = "/programas";
+    const RUTA_INSTRUCTORES = "/programas/instructores";
 
-    const programas = [
-        {
-            id: 1,
-            nombre: "Plan de Negocios desde Cero",
-            tematica: "Estrategia",
-            estado: "activo",
-            duracion: 8,
-            cupos: 30,
-            inicio: "2024-07-01",
-            instructor: "Ana Instructora"
-        },
-        {
-            id: 2,
-            nombre: "Marketing Digital para Emprendedores",
-            tematica: "Marketing",
-            estado: "activo",
-            duracion: 6,
-            cupos: 25,
-            inicio: "2024-07-15",
-            instructor: "Ana Instructora"
-        },
-        {
-            id: 3,
-            nombre: "Finanzas para No Financieros",
-            tematica: "Finanzas",
-            estado: "activo",
-            duracion: 5,
-            cupos: 20,
-            inicio: "2024-08-01",
-            instructor: "Ana Instructora"
-        },
-        {
-            id: 4,
-            nombre: "Liderazgo y Gestión de Equipos",
-            tematica: "Liderazgo",
-            estado: "inactivo",
-            duracion: 7,
-            cupos: 20,
-            inicio: "2024-09-01",
-            instructor: "Ana Instructora"
-        },
-        {
-            id: 5,
-            nombre: "E-commerce: Vende en Línea",
-            tematica: "Ventas",
-            estado: "activo",
-            duracion: 6,
-            cupos: 30,
-            inicio: "2024-08-15",
-            instructor: "Ana Instructora"
-        },
-        {
-            id: 6,
-            nombre: "Atención al Cliente y Fidelización",
-            tematica: "Ventas",
-            estado: "finalizado",
-            duracion: 4,
-            cupos: 25,
-            inicio: "2024-05-01",
-            instructor: "Ana Instructora"
-        }
-    ];
+    const $ = (id) => document.getElementById(id);
 
-    // Cada registro representa una inscripción.
-    const avances = [
-        {
-            emprendedorId: 1,
-            programaId: 1,
-            progreso: 75
-        },
-        {
-            emprendedorId: 1,
-            programaId: 2,
-            progreso: 50
-        },
-        {
-            emprendedorId: 1,
-            programaId: 6,
-            progreso: 100
-        },
-        {
-            emprendedorId: 2,
-            programaId: 1,
-            progreso: 60
-        },
-        {
-            emprendedorId: 2,
-            programaId: 3,
-            progreso: 30
-        },
-        {
-            emprendedorId: 3,
-            programaId: 2,
-            progreso: 80
-        },
-        {
-            emprendedorId: 3,
-            programaId: 5,
-            progreso: 40
-        },
-        {
-            emprendedorId: 4,
-            programaId: 3,
-            progreso: 20
-        },
-        {
-            emprendedorId: 5,
-            programaId: 5,
-            progreso: 55
-        },
-        {
-            emprendedorId: 6,
-            programaId: 6,
-            progreso: 100
-        }
-    ];
+    const csrf = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content || "";
 
-    // Casos de ejemplo para visualizar el módulo.
-    // Todavía no están conectados con el funcionario
-    // ni con el instructor.
+    let emprendedores = [];
+    let programas = [];
+    let avances = [];
+    let apoyos = [];
+    let instructores = [];
 
-    const apoyos = [
-        {
-            emprendedorId: 1,
-            fecha: "2026-10-22",
-            tipo: "Visita",
-            estado: "Requiere apoyo",
-            responsable: "Laura Funcionaria",
-            observacion:
-                "La emprendedora necesita orientación " +
-                "para organizar el presupuesto inicial " +
-                "de su panadería."
-        },
-        {
-            emprendedorId: 3,
-            fecha: "2026-10-18",
-            tipo: "Asesoría",
-            estado: "Pendiente",
-            responsable: "Ana Instructora",
-            observacion:
-                "Se recomienda fortalecer sus conocimientos " +
-                "en comercio electrónico."
-        }
-    ];
+    let resumenDisponible = false;
+    let programasDisponibles = false;
+    let programaEnEdicion = null;
 
     // ==========================================
     // FUNCIONES GENERALES
     // ==========================================
 
-    const $ = id => document.getElementById(id);
-
-    function escaparHTML(valor) {
+    function escapar(valor) {
         return String(valor ?? "").replace(
             /[&<>"']/g,
-            caracter => ({
+            (caracter) => ({
                 "&": "&amp;",
                 "<": "&lt;",
                 ">": "&gt;",
@@ -226,355 +42,436 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
-    function obtenerEmprendedor(id) {
-        return emprendedores.find(e => e.id === id);
+    function numero(valor) {
+        const resultado = Number(valor);
+        return Number.isFinite(resultado) ? resultado : 0;
     }
 
-    function obtenerPrograma(id) {
-        return programas.find(p => p.id === id);
+    function porcentaje(valor) {
+        return Math.max(0, Math.min(100, numero(valor)));
     }
 
-    function nombreEmprendedor(id) {
-        return obtenerEmprendedor(id)?.nombre || "No disponible";
+    function texto(valor, alternativa = "No registrado") {
+        const resultado = String(valor ?? "").trim();
+        return resultado || alternativa;
     }
 
-    function nombrePrograma(id) {
-        return obtenerPrograma(id)?.nombre || "No disponible";
+    function fecha(valor) {
+        if (!valor) return "";
+        return String(valor).substring(0, 10);
     }
 
-    function claseEstado(estado) {
-        const clases = {
-            "activo": "activo",
-            "inactivo": "inactivo",
-            "finalizado": "finalizado",
-            "completado": "completado",
-            "en curso": "en-curso",
-            "sin iniciar": "sin-iniciar",
-            "Requiere apoyo": "requiere-apoyo",
-            "Pendiente": "sin-iniciar",
-            "Atendido": "completado"
-        };
-
-        return clases[estado] || "sin-iniciar";
+    function escribir(id, valor) {
+        if ($(id)) $(id).textContent = valor;
     }
 
-    function etiquetaEstado(estado) {
-        return `
-            <span class="estado ${claseEstado(estado)}">
-                ${escaparHTML(estado)}
-            </span>
-        `;
-    }
+    function mostrarMensaje(mensaje, error = false) {
+        const elemento = $("mensajeSistema");
 
-    function estadoProgreso(progreso) {
-        if (progreso === 100) {
-            return "completado";
+        if (!elemento) {
+            if (error) console.error(mensaje);
+            return;
         }
 
-        if (progreso === 0) {
-            return "sin iniciar";
-        }
+        elemento.textContent = mensaje;
+        elemento.hidden = false;
+        elemento.style.background = error
+            ? "#fee2e2"
+            : "#dcfce7";
+        elemento.style.color = error
+            ? "#991b1b"
+            : "#166534";
 
-        return "en curso";
+        clearTimeout(mostrarMensaje.temporizador);
+
+        mostrarMensaje.temporizador = setTimeout(() => {
+            elemento.hidden = true;
+        }, 4500);
     }
 
-    function porcentajeSeguro(valor) {
-        const numero = Number(valor) || 0;
-        return Math.max(0, Math.min(100, numero));
+    async function solicitar(url, opciones = {}) {
+        const respuesta = await fetch(url, {
+            credentials: "same-origin",
+            ...opciones,
+            headers: {
+                Accept: "application/json",
+                "X-CSRF-TOKEN": csrf,
+                ...(opciones.body
+                    ? { "Content-Type": "application/json" }
+                    : {}),
+                ...(opciones.headers || {})
+            }
+        });
+
+        const tipo = respuesta.headers.get("content-type") || "";
+
+        const resultado = tipo.includes("application/json")
+            ? await respuesta.json()
+            : null;
+
+        if (!respuesta.ok) {
+            const errores = resultado?.errors
+                ? Object.values(resultado.errors).flat().join(" ")
+                : "";
+
+            throw new Error(
+                errores ||
+                resultado?.message ||
+                `Error HTTP ${respuesta.status}`
+            );
+        }
+
+        return resultado;
+    }
+
+    function buscarEmprendedor(id) {
+        return emprendedores.find(
+            (e) => numero(e.id) === numero(id)
+        );
+    }
+
+    function buscarPrograma(id) {
+        return programas.find(
+            (p) => numero(p.id) === numero(id)
+        );
+    }
+
+    function estadoProgreso(valor) {
+        const avance = porcentaje(valor);
+
+        if (avance === 0) return "Sin iniciar";
+        if (avance >= 100) return "Completado";
+        return "En curso";
     }
 
     // ==========================================
-    // NAVEGACIÓN
+    // CONSULTAS SQLITE
     // ==========================================
 
-    const pestanas = document.querySelectorAll(".pestana");
-    const secciones = document.querySelectorAll(".seccion");
+    async function cargarResumen() {
+        try {
+            const datos = await solicitar(RUTA_RESUMEN);
 
-    pestanas.forEach(boton => {
-        boton.addEventListener("click", () => {
-            const destino = boton.dataset.pestana;
+            if (
+                !Array.isArray(datos?.emprendedores) ||
+                !Array.isArray(datos?.avances) ||
+                !Array.isArray(datos?.apoyos)
+            ) {
+                throw new Error(
+                    "El resumen no tiene el formato esperado."
+                );
+            }
 
-            pestanas.forEach(p => {
-                const activa = p === boton;
+            emprendedores = datos.emprendedores;
+            avances = datos.avances;
+            apoyos = datos.apoyos;
 
-                p.classList.toggle("activa", activa);
+            resumenDisponible = true;
 
-                p.setAttribute(
-                    "aria-selected",
-                    String(activa)
+            actualizarInterfaz();
+        } catch (error) {
+            resumenDisponible = false;
+            console.error(error);
+            mostrarMensaje(
+                "No se pudo consultar el resumen en SQLite: " +
+                error.message,
+                true
+            );
+        }
+    }
+
+    async function cargarProgramas() {
+        try {
+            const datos = await solicitar(RUTA_PROGRAMAS);
+
+            programas = Array.isArray(datos)
+                ? datos
+                : Array.isArray(datos?.programas)
+                    ? datos.programas
+                    : [];
+
+            programasDisponibles = true;
+            actualizarInterfaz();
+        } catch (error) {
+            programasDisponibles = false;
+            console.error(error);
+            mostrarMensaje(
+                "No se pudieron consultar los programas: " +
+                error.message,
+                true
+            );
+        }
+    }
+
+    async function cargarInstructores() {
+        try {
+            const datos = await solicitar(RUTA_INSTRUCTORES);
+
+            instructores = Array.isArray(datos)
+                ? datos
+                : Array.isArray(datos?.instructores)
+                    ? datos.instructores
+                    : [];
+        } catch (error) {
+            console.error(error);
+            mostrarMensaje(
+                "No se pudieron consultar los instructores.",
+                true
+            );
+        }
+    }
+
+    // ==========================================
+    // NAVEGACIÓN ENTRE PESTAÑAS
+    // ==========================================
+
+    document.querySelectorAll("[data-pestana]").forEach(
+        (boton) => {
+            boton.addEventListener("click", () => {
+                const destino = boton.dataset.pestana;
+
+                document.querySelectorAll(".pestana").forEach(
+                    (elemento) => {
+                        const activo = elemento === boton;
+                        elemento.classList.toggle("activa", activo);
+                        elemento.setAttribute(
+                            "aria-selected",
+                            String(activo)
+                        );
+                    }
+                );
+
+                document.querySelectorAll(".seccion").forEach(
+                    (seccion) => {
+                        const activa = seccion.id === destino;
+                        seccion.hidden = !activa;
+                        seccion.classList.toggle("activa", activa);
+                    }
                 );
             });
-
-            secciones.forEach(seccion => {
-                const visible = seccion.id === destino;
-
-                seccion.hidden = !visible;
-                seccion.classList.toggle("activa", visible);
-            });
-        });
-    });
-
-    // ==========================================
-    // CONTEOS
-    // ==========================================
-
-    function contarSectores() {
-        const conteo = {};
-
-        emprendedores.forEach(e => {
-            conteo[e.sector] = (conteo[e.sector] || 0) + 1;
-        });
-
-        return Object.entries(conteo)
-            .map(([nombre, cantidad]) => ({
-                nombre,
-                cantidad
-            }))
-            .sort((a, b) =>
-                b.cantidad - a.cantidad ||
-                a.nombre.localeCompare(b.nombre)
-            );
-    }
-
-    function inscritosPrograma(programaId) {
-        return avances.filter(
-            a => a.programaId === programaId
-        ).length;
-    }
-
-    function contarProgramas() {
-        return programas.map(programa => ({
-            id: programa.id,
-            nombre: programa.nombre,
-            cantidad: inscritosPrograma(programa.id)
-        })).sort((a, b) =>
-            b.cantidad - a.cantidad ||
-            a.nombre.localeCompare(b.nombre)
-        );
-    }
-
-    function casosQueRequierenApoyo() {
-        return apoyos.filter(
-            caso => caso.estado === "Requiere apoyo"
-        );
-    }
+        }
+    );
 
     // ==========================================
     // INDICADORES
     // ==========================================
 
     function mostrarIndicadores() {
+        if (!resumenDisponible) return;
+
         const activos = emprendedores.filter(
-            e => e.estado === "activo"
+            (e) => e.estado === "activo"
         ).length;
 
         const inactivos = emprendedores.filter(
-            e => e.estado === "inactivo"
+            (e) => e.estado === "inactivo"
         ).length;
 
         const promedio = avances.length
-            ? Math.round(
-                avances.reduce(
-                    (suma, a) => suma + a.progreso,
-                    0
-                ) / avances.length
-            )
+            ? avances.reduce(
+                (suma, a) => suma + porcentaje(a.progreso),
+                0
+            ) / avances.length
             : 0;
 
-        $("totalRegistrados").textContent =
-            emprendedores.length;
+        escribir("totalRegistrados", emprendedores.length);
+        escribir("totalActivos", activos);
+        escribir("totalInactivos", inactivos);
+        escribir("totalApoyos", apoyos.length);
+        escribir("totalInscripciones", avances.length);
+        escribir("promedioProgreso", `${Math.round(promedio)}%`);
 
-        $("totalActivos").textContent = activos;
+        if (programasDisponibles) {
+            escribir("totalProgramas", programas.length);
 
-        $("totalInactivos").textContent = inactivos;
+            escribir(
+                "programasActivos",
+                programas.filter(
+                    (p) => p.estado === "activo"
+                ).length
+            );
+        }
 
-        $("totalProgramas").textContent =
-            programas.length;
-
-        $("programasActivos").textContent =
-            programas.filter(
-                p => p.estado === "activo"
-            ).length;
-
-        $("totalInscripciones").textContent =
-            avances.length;
-
-        $("totalApoyos").textContent =
-            casosQueRequierenApoyo().length;
-
-        $("promedioProgreso").textContent =
-            `${promedio}%`;
-
-        $("descripcionEmprendedores").textContent =
-            `${activos} de ${emprendedores.length} ` +
-            "emprendedores se encuentran activos en el programa.";
+        escribir(
+            "descripcionEmprendedores",
+            `${activos} de ${emprendedores.length} emprendedores se encuentran activos.`
+        );
     }
 
     // ==========================================
-    // BARRAS ESTADÍSTICAS
+    // ESTADÍSTICAS
     // ==========================================
 
-    function mostrarEstadisticas(contenedorId, datos) {
-        const contenedor = $(contenedorId);
+    function dibujarBarras(id, elementos) {
+        const contenedor = $(id);
+        if (!contenedor) return;
 
-        if (!datos.length) {
-            contenedor.innerHTML = `
-                <p class="mensaje-vacio">
-                    No hay datos disponibles.
-                </p>
-            `;
+        if (!elementos.length) {
+            contenedor.innerHTML =
+                '<p class="mensaje-vacio">No hay datos disponibles.</p>';
             return;
         }
 
         const maximo = Math.max(
             1,
-            ...datos.map(d => d.cantidad)
+            ...elementos.map((e) => e.cantidad)
         );
 
-        contenedor.innerHTML = datos.map(d => {
-            const porcentaje =
-                porcentajeSeguro(d.cantidad / maximo * 100);
+        contenedor.innerHTML = elementos.map((elemento) => {
+            const ancho = Math.round(
+                elemento.cantidad / maximo * 100
+            );
 
             return `
-                <div class="estadistica">
-
-                    <div class="estadistica-cabecera">
-                        <span>${escaparHTML(d.nombre)}</span>
-                        <strong>${d.cantidad}</strong>
+                <div style="margin:16px 0">
+                    <div style="display:flex;justify-content:space-between;gap:12px">
+                        <span>${escapar(elemento.nombre)}</span>
+                        <strong>${elemento.cantidad}</strong>
                     </div>
-
-                    <div class="barra-fondo">
-                        <div class="barra-relleno"
-                             style="width: ${porcentaje}%">
-                        </div>
+                    <div style="height:9px;background:#e5e7eb;border-radius:8px;margin-top:7px;overflow:hidden">
+                        <div style="width:${ancho}%;height:100%;background:#1d3b5c;border-radius:8px"></div>
                     </div>
-
                 </div>
             `;
         }).join("");
     }
 
-    // ==========================================
-    // FILTROS DE AVANCE
-    // ==========================================
+    function mostrarEstadisticas() {
+        if (resumenDisponible) {
+            const sectores = new Map();
 
-    function cargarFiltroProgramas() {
-        $("filtroPrograma").innerHTML = `
-            <option value="">Todos los programas</option>
-            ${programas.map(p => `
-                <option value="${p.id}">
-                    ${escaparHTML(p.nombre)}
-                </option>
-            `).join("")}
-        `;
+            emprendedores.forEach((e) => {
+                const nombre = texto(
+                    e.sector || e.actividad,
+                    "Sin especificar"
+                );
+
+                sectores.set(
+                    nombre,
+                    (sectores.get(nombre) || 0) + 1
+                );
+            });
+
+            dibujarBarras(
+                "listaSectores",
+                [...sectores].map(([nombre, cantidad]) => ({
+                    nombre,
+                    cantidad
+                })).sort((a, b) => b.cantidad - a.cantidad)
+            );
+        }
+
+        if (programasDisponibles) {
+            dibujarBarras(
+                "listaProgramas",
+                programas.map((p) => ({
+                    nombre: p.nombre,
+                    cantidad: numero(p.inscripciones_count)
+                })).sort((a, b) => b.cantidad - a.cantidad)
+            );
+        }
     }
 
-    function avancesFiltrados() {
-        const busqueda = $("buscarAvance")
-            .value.trim().toLowerCase();
+    // ==========================================
+    // AVANCE DE EMPRENDEDORES
+    // ==========================================
 
-        const programaId = $("filtroPrograma").value;
-        const progreso = $("filtroProgreso").value;
+    function actualizarFiltroProgramas() {
+        const filtro = $("filtroPrograma");
+        if (!filtro) return;
 
-        return avances.filter(a => {
-            const emprendedor =
-                obtenerEmprendedor(a.emprendedorId);
+        const seleccionado = filtro.value;
 
-            const texto = [
-                emprendedor?.nombre || "",
-                emprendedor?.emprendimiento || ""
-            ].join(" ").toLowerCase();
+        filtro.innerHTML =
+            '<option value="">Todos los programas</option>' +
+            programas.map((p) => `
+                <option value="${numero(p.id)}">
+                    ${escapar(p.nombre)}
+                </option>
+            `).join("");
 
-            const coincideTexto =
-                texto.includes(busqueda);
+        filtro.value = seleccionado;
+    }
 
-            const coincidePrograma =
-                !programaId ||
-                a.programaId === Number(programaId);
+    function obtenerAvancesFiltrados() {
+        const busqueda = (
+            $("buscarAvance")?.value || ""
+        ).toLowerCase().trim();
 
-            const estado = estadoProgreso(a.progreso);
+        const programa = $("filtroPrograma")?.value || "";
+        const progreso = $("filtroProgreso")?.value || "";
+
+        return avances.filter((avance) => {
+            const emprendedor = buscarEmprendedor(
+                avance.emprendedorId ?? avance.emprendedor_id
+            );
+
+            const nombre = (
+                (emprendedor?.nombre || "") + " " +
+                (emprendedor?.emprendimiento || "")
+            ).toLowerCase();
+
+            const coincideNombre = nombre.includes(busqueda);
+
+            const coincidePrograma = !programa ||
+                numero(avance.programaId ?? avance.programa_id) ===
+                numero(programa);
+
+            const valor = porcentaje(avance.progreso);
 
             const coincideProgreso =
                 !progreso ||
-                (
-                    progreso === "sin-iniciar" &&
-                    estado === "sin iniciar"
-                ) ||
-                (
-                    progreso === "en-curso" &&
-                    estado === "en curso"
-                ) ||
-                (
-                    progreso === "completado" &&
-                    estado === "completado"
-                );
+                (progreso === "sin-iniciar" && valor === 0) ||
+                (progreso === "en-curso" && valor > 0 && valor < 100) ||
+                (progreso === "completado" && valor >= 100);
 
-            return (
-                coincideTexto &&
+            return coincideNombre &&
                 coincidePrograma &&
-                coincideProgreso
-            );
+                coincideProgreso;
         });
     }
 
-    // ==========================================
-    // TABLA DE AVANCE
-    // ==========================================
-
     function mostrarAvances() {
-        const datos = avancesFiltrados();
+        const tabla = $("tablaAvances");
+        if (!tabla || !resumenDisponible) return;
 
-        $("cantidadAvances").textContent =
-            `${datos.length} registros`;
+        const datos = obtenerAvancesFiltrados();
 
-        $("sinAvances").hidden = datos.length > 0;
+        escribir(
+            "cantidadAvances",
+            `${datos.length} registros`
+        );
 
-        $("tablaAvances").innerHTML = datos.map(a => {
-            const emprendedor =
-                obtenerEmprendedor(a.emprendedorId);
+        if ($("sinAvances")) {
+            $("sinAvances").hidden = datos.length > 0;
+        }
 
-            const estado = estadoProgreso(a.progreso);
+        tabla.innerHTML = datos.map((a) => {
+            const emprendedor = buscarEmprendedor(
+                a.emprendedorId ?? a.emprendedor_id
+            );
+
+            const programa = buscarPrograma(
+                a.programaId ?? a.programa_id
+            );
+
+            const progreso = porcentaje(a.progreso);
 
             return `
                 <tr>
                     <td>
-                        ${escaparHTML(
-                            emprendedor?.nombre || ""
-                        )}
+                        <strong>${escapar(emprendedor?.nombre || "No disponible")}</strong>
+                        <div>${escapar(emprendedor?.correo || "")}</div>
                     </td>
-
+                    <td>${escapar(emprendedor?.emprendimiento || "Sin registrar")}</td>
+                    <td>${escapar(programa?.nombre || "Programa no disponible")}</td>
                     <td>
-                        ${escaparHTML(
-                            emprendedor?.emprendimiento || ""
-                        )}
-                    </td>
-
-                    <td>
-                        ${escaparHTML(
-                            nombrePrograma(a.programaId)
-                        )}
-                    </td>
-
-                    <td>
-                        <div class="progreso-contenedor">
-
-                            <div class="progreso-fondo">
-                                <div class="progreso-relleno"
-                                     style="width:
-                                     ${porcentajeSeguro(a.progreso)}%">
-                                </div>
-                            </div>
-
-                            <span class="progreso-texto">
-                                ${a.progreso}%
-                            </span>
-
+                        <strong>${progreso}%</strong>
+                        <div style="height:8px;background:#e5e7eb;border-radius:8px;margin-top:8px">
+                            <div style="width:${progreso}%;height:100%;background:#1d3b5c;border-radius:8px"></div>
                         </div>
                     </td>
-
-                    <td>
-                        ${etiquetaEstado(estado)}
-                    </td>
+                    <td>${escapar(estadoProgreso(progreso))}</td>
                 </tr>
             `;
         }).join("");
@@ -585,157 +482,356 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
 
     function programasFiltrados() {
-        const busqueda = $("buscarPrograma")
-            .value.trim().toLowerCase();
+        const busqueda = (
+            $("buscarPrograma")?.value || ""
+        ).toLowerCase().trim();
 
-        const estado = $("filtroEstadoPrograma").value;
+        const estado = $("filtroEstadoPrograma")?.value || "";
 
-        return programas.filter(p =>
-            p.nombre.toLowerCase().includes(busqueda) &&
-            (!estado || p.estado === estado)
-        );
+        return programas.filter((p) => {
+            const contenido = (
+                p.nombre + " " +
+                (p.tematica || "") + " " +
+                (p.descripcion || "")
+            ).toLowerCase();
+
+            return contenido.includes(busqueda) &&
+                (!estado || p.estado === estado);
+        });
     }
 
     function mostrarProgramas() {
+        const contenedor = $("cuadriculaProgramas");
+
+        if (!contenedor || !programasDisponibles) return;
+
         const datos = programasFiltrados();
 
-        $("sinProgramas").hidden = datos.length > 0;
+        if ($("sinProgramas")) {
+            $("sinProgramas").hidden = datos.length > 0;
+        }
 
-        $("cuadriculaProgramas").innerHTML =
-            datos.map(p => {
+        contenedor.innerHTML = datos.map((p) => {
+            const inscritos = numero(p.inscripciones_count);
+            const cupos = numero(p.cupos);
+            const ocupacion = cupos > 0
+                ? Math.min(100, Math.round(inscritos / cupos * 100))
+                : 0;
 
-                const inscritos = inscritosPrograma(p.id);
+            return `
+                <article class="tarjeta-programa" style="background:#fff;border:1px solid #dce4ed;border-radius:16px;padding:20px">
+                    <div style="display:flex;justify-content:space-between;gap:12px">
+                        <h3>${escapar(p.nombre)}</h3>
+                        <span>${escapar(p.estado)}</span>
+                    </div>
 
-                const ocupacion = p.cupos
-                    ? Math.round(inscritos / p.cupos * 100)
-                    : 0;
+                    <p>${escapar(p.tematica)}</p>
+                    <p>${escapar(p.descripcion || "")}</p>
 
-                return `
-                    <article class="tarjeta-programa">
+                    <p>Instructor: <strong>${escapar(p.instructor?.name || "Sin asignar")}</strong></p>
+                    <p>Duración: <strong>${numero(p.duracion_semanas)} semanas</strong></p>
+                    <p>Inicio: <strong>${escapar(fecha(p.fecha_inicio) || "Por definir")}</strong></p>
+                    <p>Inscritos: <strong>${inscritos}/${cupos}</strong></p>
 
-                        <div class="programa-cabecera">
-                            <h3>${escaparHTML(p.nombre)}</h3>
-                            ${etiquetaEstado(p.estado)}
-                        </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span>Ocupación de cupos</span>
+                        <strong>${ocupacion}%</strong>
+                    </div>
 
-                        <span class="tematica">
-                            ${escaparHTML(p.tematica)}
-                        </span>
+                    <div style="height:9px;background:#e5e7eb;border-radius:8px;margin:10px 0 18px">
+                        <div style="height:100%;width:${ocupacion}%;background:#1d3b5c;border-radius:8px"></div>
+                    </div>
 
-                        <div class="dato-programa">
-                            <span>Instructor:</span>
-                            <strong>
-                                ${escaparHTML(p.instructor)}
-                            </strong>
-                        </div>
-
-                        <div class="dato-programa">
-                            <span>Duración:</span>
-                            <strong>${p.duracion} semanas</strong>
-                        </div>
-
-                        <div class="dato-programa">
-                            <span>Inicio:</span>
-                            <strong>${escaparHTML(p.inicio)}</strong>
-                        </div>
-
-                        <div class="dato-programa">
-                            <span>Inscritos:</span>
-                            <strong>
-                                ${inscritos}/${p.cupos}
-                            </strong>
-                        </div>
-
-                        <div class="ocupacion-titulo">
-                            <span>Ocupación de cupos</span>
-                            <strong>${ocupacion}%</strong>
-                        </div>
-
-                        <div class="barra-fondo">
-                            <div class="barra-relleno"
-                                 style="width:
-                                 ${porcentajeSeguro(ocupacion)}%">
-                            </div>
-                        </div>
-
-                    </article>
-                `;
-            }).join("");
+                    <button type="button"
+                        class="boton-principal"
+                        data-editar-programa="${numero(p.id)}">
+                        Editar programa
+                    </button>
+                </article>
+            `;
+        }).join("");
     }
+
+    // ==========================================
+    // FORMULARIO DE PROGRAMAS
+    // ==========================================
+
+    function crearFormularioProgramas() {
+        if ($("modalGestionPrograma")) return;
+
+        const modal = document.createElement("dialog");
+        modal.id = "modalGestionPrograma";
+        modal.className = "modal-dialog";
+
+        modal.style.cssText =
+            "width:min(620px,94vw);max-height:90vh;" +
+            "overflow:auto;border:0;border-radius:16px;" +
+            "padding:25px;box-shadow:0 15px 50px #0003";
+
+        modal.innerHTML = `
+            <h2 id="tituloGestionPrograma">Nuevo programa</h2>
+
+            <form id="formGestionPrograma">
+                <div class="campos-programa">
+
+                    <label for="nombrePrograma">Nombre del programa</label>
+                    <input id="nombrePrograma" required maxlength="255">
+
+                    <label for="tematicaPrograma">Temática</label>
+                    <input id="tematicaPrograma" required maxlength="100">
+
+                    <label for="descripcionPrograma">Descripción</label>
+                    <textarea id="descripcionPrograma" rows="3"></textarea>
+
+                    <label for="instructorPrograma">Instructor</label>
+                    <select id="instructorPrograma">
+                        <option value="">Sin asignar</option>
+                    </select>
+
+                    <label for="duracionPrograma">Duración en semanas</label>
+                    <input id="duracionPrograma" type="number" min="1" required>
+
+                    <label for="cuposPrograma">Cupos disponibles</label>
+                    <input id="cuposPrograma" type="number" min="1" required>
+
+                    <label for="fechaInicioPrograma">Fecha de inicio</label>
+                    <input id="fechaInicioPrograma" type="date">
+
+                    <label for="estadoPrograma">Estado</label>
+                    <select id="estadoPrograma" required>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                        <option value="finalizado">Finalizado</option>
+                    </select>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:22px">
+                    <button type="button"
+                        id="cancelarGestionPrograma"
+                        class="boton-secundario">
+                        Cancelar
+                    </button>
+
+                    <button type="submit"
+                        id="guardarGestionPrograma"
+                        class="boton-principal">
+                        Guardar programa
+                    </button>
+                </div>
+            </form>
+        `;
+
+        document.body.appendChild(modal);
+
+        const estilos = document.createElement("style");
+        estilos.textContent = `
+            #modalGestionPrograma::backdrop {
+                background: rgba(0,0,0,.5);
+            }
+            #modalGestionPrograma .campos-programa {
+                display: grid;
+                gap: 9px;
+            }
+            #modalGestionPrograma .campos-programa input,
+            #modalGestionPrograma .campos-programa select,
+            #modalGestionPrograma .campos-programa textarea {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 11px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                font: inherit;
+            }
+            #modalGestionPrograma label {
+                font-weight: 600;
+                margin-top: 6px;
+            }
+        `;
+
+        document.head.appendChild(estilos);
+
+        $("cancelarGestionPrograma").addEventListener(
+            "click",
+            () => modal.close()
+        );
+
+        $("formGestionPrograma").addEventListener(
+            "submit",
+            guardarPrograma
+        );
+    }
+
+    function actualizarInstructores() {
+        const select = $("instructorPrograma");
+        if (!select) return;
+
+        select.innerHTML =
+            '<option value="">Sin asignar</option>' +
+            instructores.map((i) => `
+                <option value="${numero(i.id)}">
+                    ${escapar(i.name)}
+                </option>
+            `).join("");
+    }
+
+    async function abrirFormulario(id = null) {
+        crearFormularioProgramas();
+
+        await cargarInstructores();
+
+        programaEnEdicion = id === null
+            ? null
+            : buscarPrograma(id);
+
+        $("formGestionPrograma").reset();
+        actualizarInstructores();
+
+        if (programaEnEdicion) {
+            const p = programaEnEdicion;
+
+            escribir("tituloGestionPrograma", "Editar programa");
+
+            $("nombrePrograma").value = p.nombre || "";
+            $("tematicaPrograma").value = p.tematica || "";
+            $("descripcionPrograma").value = p.descripcion || "";
+            $("instructorPrograma").value = p.instructor_id || "";
+            $("duracionPrograma").value = p.duracion_semanas || 1;
+            $("cuposPrograma").value = p.cupos || 1;
+            $("fechaInicioPrograma").value = fecha(p.fecha_inicio);
+            $("estadoPrograma").value = p.estado || "activo";
+        } else {
+            escribir("tituloGestionPrograma", "Nuevo programa");
+            $("estadoPrograma").value = "activo";
+        }
+
+        $("modalGestionPrograma").showModal();
+    }
+
+    async function guardarPrograma(evento) {
+        evento.preventDefault();
+
+        const boton = $("guardarGestionPrograma");
+        boton.disabled = true;
+
+        const datos = {
+            nombre: $("nombrePrograma").value.trim(),
+            tematica: $("tematicaPrograma").value.trim(),
+            descripcion: $("descripcionPrograma").value.trim() || null,
+            instructor_id: $("instructorPrograma").value
+                ? numero($("instructorPrograma").value)
+                : null,
+            duracion_semanas: numero($("duracionPrograma").value),
+            cupos: numero($("cuposPrograma").value),
+            fecha_inicio: $("fechaInicioPrograma").value || null,
+            estado: $("estadoPrograma").value
+        };
+
+        try {
+            const editar = programaEnEdicion !== null;
+
+            const url = editar
+                ? `${RUTA_PROGRAMAS}/${programaEnEdicion.id}`
+                : RUTA_PROGRAMAS;
+
+            const resultado = await solicitar(url, {
+                method: editar ? "PUT" : "POST",
+                body: JSON.stringify(datos)
+            });
+
+            $("modalGestionPrograma").close();
+
+            mostrarMensaje(
+                resultado?.message ||
+                "Programa guardado correctamente en SQLite."
+            );
+
+            await Promise.all([
+                cargarProgramas(),
+                cargarResumen()
+            ]);
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+        } finally {
+            boton.disabled = false;
+        }
+    }
+
+    function agregarBotonNuevo() {
+        if ($("btnNuevoPrograma")) return;
+
+        const contenedor = $("cuadriculaProgramas");
+        if (!contenedor) return;
+
+        const boton = document.createElement("button");
+        boton.id = "btnNuevoPrograma";
+        boton.type = "button";
+        boton.className = "boton-principal";
+        boton.textContent = "+ Nuevo programa";
+
+        boton.style.marginBottom = "16px";
+
+        contenedor.before(boton);
+
+        boton.addEventListener("click", () => {
+            abrirFormulario();
+        });
+    }
+
+    document.addEventListener("click", (evento) => {
+        const boton = evento.target.closest(
+            "[data-editar-programa]"
+        );
+
+        if (boton) {
+            abrirFormulario(
+                numero(boton.dataset.editarPrograma)
+            );
+        }
+    });
 
     // ==========================================
     // NECESIDADES DE APOYO
     // ==========================================
 
-    function apoyosFiltrados() {
-        const busqueda = $("buscarApoyo")
-            .value.trim().toLowerCase();
-
-        return apoyos.filter(caso => {
-            const emprendedor =
-                obtenerEmprendedor(caso.emprendedorId);
-
-            return [
-                emprendedor?.nombre || "",
-                emprendedor?.emprendimiento || "",
-                caso.observacion
-            ].join(" ").toLowerCase().includes(busqueda);
-        });
-    }
-
     function mostrarApoyos() {
-        const datos = apoyosFiltrados();
+        const contenedor = $("listaApoyos");
+        if (!contenedor || !resumenDisponible) return;
 
-        $("cantidadApoyos").textContent =
-            `${datos.length} casos`;
+        const busqueda = (
+            $("buscarApoyo")?.value || ""
+        ).toLowerCase().trim();
 
-        $("sinApoyos").hidden = datos.length > 0;
+        const filtrados = apoyos.filter((apoyo) => {
+            const emprendedor = buscarEmprendedor(
+                apoyo.emprendedorId ?? apoyo.emprendedor_id
+            );
 
-        $("listaApoyos").innerHTML = datos.map(caso => {
-            const emprendedor =
-                obtenerEmprendedor(caso.emprendedorId);
+            return (
+                (emprendedor?.nombre || "") + " " +
+                (emprendedor?.emprendimiento || "")
+            ).toLowerCase().includes(busqueda);
+        });
+
+        escribir("cantidadApoyos", `${filtrados.length} casos`);
+
+        if ($("sinApoyos")) {
+            $("sinApoyos").hidden = filtrados.length > 0;
+        }
+
+        contenedor.innerHTML = filtrados.map((apoyo) => {
+            const emprendedor = buscarEmprendedor(
+                apoyo.emprendedorId ?? apoyo.emprendedor_id
+            );
 
             return `
-                <article class="caso-apoyo">
-
-                    <div class="caso-cabecera">
-                        <div>
-                            <h3>
-                                ${escaparHTML(
-                                    emprendedor?.nombre || ""
-                                )}
-                            </h3>
-
-                            <small>
-                                ${escaparHTML(
-                                    emprendedor?.emprendimiento || ""
-                                )}
-                            </small>
-                        </div>
-
-                        ${etiquetaEstado(caso.estado)}
-                    </div>
-
-                    <p>
-                        <strong>Fecha:</strong>
-                        ${escaparHTML(caso.fecha)}
-                    </p>
-
-                    <p>
-                        <strong>Tipo de seguimiento:</strong>
-                        ${escaparHTML(caso.tipo)}
-                    </p>
-
-                    <p>
-                        <strong>Responsable:</strong>
-                        ${escaparHTML(caso.responsable)}
-                    </p>
-
-                    <p>
-                        <strong>Observaciones:</strong>
-                        ${escaparHTML(caso.observacion)}
-                    </p>
-
+                <article style="border:1px solid #dce4ed;border-radius:12px;padding:18px;margin:12px 0">
+                    <h3>${escapar(emprendedor?.nombre || "Emprendedor no disponible")}</h3>
+                    <p><strong>Negocio:</strong> ${escapar(emprendedor?.emprendimiento || "Sin registrar")}</p>
+                    <p><strong>Fecha:</strong> ${escapar(apoyo.fecha)}</p>
+                    <p><strong>Tipo:</strong> ${escapar(apoyo.tipo)}</p>
+                    <p><strong>Estado:</strong> ${escapar(apoyo.estado)}</p>
+                    <p><strong>Responsable:</strong> ${escapar(apoyo.responsable)}</p>
+                    <p><strong>Observaciones:</strong> ${escapar(apoyo.observacion)}</p>
                 </article>
             `;
         }).join("");
@@ -745,130 +841,132 @@ document.addEventListener("DOMContentLoaded", () => {
     // EXPORTACIÓN CSV
     // ==========================================
 
-    function protegerCSV(valor) {
-        let texto = String(valor ?? "");
+    function valorCSV(valor) {
+        let contenido = String(valor ?? "");
 
-        // Evita que Excel interprete datos
-        // proporcionados por usuarios como fórmulas.
-        if (/^\s*[=+\-@\t\r]/.test(texto)) {
-            texto = "'" + texto;
+        // Evitar que Excel interprete datos como fórmulas.
+        if (/^[\s]*[=+\-@\t\r]/.test(contenido)) {
+            contenido = "'" + contenido;
         }
 
-        return `"${texto.replace(/"/g, '""')}"`;
+        return '"' + contenido.replace(/"/g, '""') + '"';
     }
 
-    function descargarCSV(nombreArchivo, encabezados, registros) {
-        const filas = [encabezados, ...registros];
-
-        const contenido = filas.map(fila =>
-            fila.map(protegerCSV).join(";")
+    function descargarCSV(nombre, encabezados, filas) {
+        const contenido = [
+            encabezados,
+            ...filas
+        ].map(
+            (fila) => fila.map(valorCSV).join(";")
         ).join("\r\n");
 
-        const blob = new Blob(
+        const archivo = new Blob(
             ["\uFEFF" + contenido],
-            { type: "text/csv;charset=utf-8" }
+            { type: "text/csv;charset=utf-8;" }
         );
 
-        const url = URL.createObjectURL(blob);
-
+        const url = URL.createObjectURL(archivo);
         const enlace = document.createElement("a");
 
         enlace.href = url;
-        enlace.download = nombreArchivo;
-
+        enlace.download = nombre;
         document.body.appendChild(enlace);
         enlace.click();
         enlace.remove();
 
-        setTimeout(() => {
-            URL.revokeObjectURL(url);
-        }, 1000);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
     function exportarReporte(tipo) {
+        if (!resumenDisponible || !programasDisponibles) {
+            mostrarMensaje(
+                "Espera a que se carguen los registros de SQLite.",
+                true
+            );
+            return;
+        }
 
         if (tipo === "emprendedores") {
             descargarCSV(
-                "reporte_emprendedores.csv",
-                [
-                    "Nombre",
-                    "Correo",
-                    "Emprendimiento",
-                    "Actividad económica",
-                    "Sector",
-                    "Estado"
-                ],
-                emprendedores.map(e => [
+                "emprendedores.csv",
+                ["ID", "Nombre", "Correo", "Negocio", "Actividad", "Estado"],
+                emprendedores.map((e) => [
+                    e.id,
                     e.nombre,
                     e.correo,
                     e.emprendimiento,
                     e.actividad,
-                    e.sector,
                     e.estado
                 ])
             );
         }
 
         if (tipo === "sectores") {
+            const sectores = new Map();
+
+            emprendedores.forEach((e) => {
+                const sector = texto(
+                    e.sector || e.actividad,
+                    "Sin especificar"
+                );
+
+                sectores.set(
+                    sector,
+                    (sectores.get(sector) || 0) + 1
+                );
+            });
+
             descargarCSV(
-                "reporte_sectores.csv",
-                [
-                    "Sector económico",
-                    "Cantidad de emprendedores"
-                ],
-                contarSectores().map(s => [
-                    s.nombre,
-                    s.cantidad
-                ])
+                "sectores.csv",
+                ["Sector económico", "Emprendedores"],
+                [...sectores]
             );
         }
 
         if (tipo === "programas") {
             descargarCSV(
-                "reporte_programas.csv",
+                "programas.csv",
                 [
-                    "Programa",
-                    "Temática",
-                    "Estado",
-                    "Instructor",
-                    "Duración en semanas",
-                    "Fecha de inicio",
-                    "Cupos",
-                    "Inscripciones"
+                    "ID", "Programa", "Temática", "Instructor",
+                    "Duración (semanas)", "Cupos",
+                    "Inscritos", "Fecha de inicio", "Estado"
                 ],
-                programas.map(p => [
+                programas.map((p) => [
+                    p.id,
                     p.nombre,
                     p.tematica,
-                    p.estado,
-                    p.instructor,
-                    p.duracion,
-                    p.inicio,
+                    p.instructor?.name || "",
+                    p.duracion_semanas,
                     p.cupos,
-                    inscritosPrograma(p.id)
+                    p.inscripciones_count,
+                    fecha(p.fecha_inicio),
+                    p.estado
                 ])
             );
         }
 
         if (tipo === "avances") {
             descargarCSV(
-                "reporte_avances.csv",
+                "avances.csv",
                 [
-                    "Emprendedor",
-                    "Emprendimiento",
-                    "Programa",
-                    "Progreso",
-                    "Estado"
+                    "Emprendedor", "Negocio", "Programa",
+                    "Progreso (%)", "Estado inscripción"
                 ],
-                avances.map(a => {
-                    const e =
-                        obtenerEmprendedor(a.emprendedorId);
+                avances.map((a) => {
+                    const e = buscarEmprendedor(
+                        a.emprendedorId ?? a.emprendedor_id
+                    );
+
+                    const p = buscarPrograma(
+                        a.programaId ?? a.programa_id
+                    );
 
                     return [
                         e?.nombre || "",
                         e?.emprendimiento || "",
-                        nombrePrograma(a.programaId),
-                        `${a.progreso}%`,
-                        estadoProgreso(a.progreso)
+                        p?.nombre || "",
+                        porcentaje(a.progreso),
+                        a.estado
                     ];
                 })
             );
@@ -876,128 +974,84 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (tipo === "apoyos") {
             descargarCSV(
-                "reporte_necesidades_apoyo.csv",
+                "necesidades_apoyo.csv",
                 [
-                    "Emprendedor",
-                    "Emprendimiento",
-                    "Fecha",
-                    "Tipo",
-                    "Responsable",
-                    "Estado",
-                    "Observaciones"
+                    "Emprendedor", "Negocio", "Fecha",
+                    "Tipo", "Estado", "Responsable", "Observaciones"
                 ],
-                apoyos.map(caso => {
-                    const e =
-                        obtenerEmprendedor(caso.emprendedorId);
+                apoyos.map((a) => {
+                    const e = buscarEmprendedor(
+                        a.emprendedorId ?? a.emprendedor_id
+                    );
 
                     return [
                         e?.nombre || "",
                         e?.emprendimiento || "",
-                        caso.fecha,
-                        caso.tipo,
-                        caso.responsable,
-                        caso.estado,
-                        caso.observacion
+                        a.fecha,
+                        a.tipo,
+                        a.estado,
+                        a.responsable,
+                        a.observacion
                     ];
                 })
             );
         }
+
+        mostrarMensaje("Reporte CSV generado con datos de SQLite.");
     }
 
     // ==========================================
-    // MENSAJES
+    // EVENTOS DE FILTROS Y REPORTES
     // ==========================================
 
-    let temporizadorMensaje;
+    const eventos = [
+        ["buscarAvance", "input", mostrarAvances],
+        ["filtroPrograma", "change", mostrarAvances],
+        ["filtroProgreso", "change", mostrarAvances],
+        ["buscarPrograma", "input", mostrarProgramas],
+        ["filtroEstadoPrograma", "change", mostrarProgramas],
+        ["buscarApoyo", "input", mostrarApoyos]
+    ];
 
-    function mostrarMensaje(texto) {
-        const elemento = $("mensajeSistema");
+    eventos.forEach(([id, evento, funcion]) => {
+        $(id)?.addEventListener(evento, funcion);
+    });
 
-        elemento.textContent = texto;
-        elemento.hidden = false;
-
-        clearTimeout(temporizadorMensaje);
-
-        temporizadorMensaje = setTimeout(() => {
-            elemento.hidden = true;
-        }, 3500);
-    }
-
-    // ==========================================
-    // EVENTOS
-    // ==========================================
-
-    $("buscarAvance").addEventListener(
-        "input",
-        mostrarAvances
-    );
-
-    $("filtroPrograma").addEventListener(
-        "change",
-        mostrarAvances
-    );
-
-    $("filtroProgreso").addEventListener(
-        "change",
-        mostrarAvances
-    );
-
-    $("buscarPrograma").addEventListener(
-        "input",
-        mostrarProgramas
-    );
-
-    $("filtroEstadoPrograma").addEventListener(
-        "change",
-        mostrarProgramas
-    );
-
-    $("buscarApoyo").addEventListener(
-        "input",
-        mostrarApoyos
-    );
-
-    document.querySelectorAll("[data-reporte]")
-        .forEach(boton => {
-
+    document.querySelectorAll("[data-reporte]").forEach(
+        (boton) => {
             boton.addEventListener("click", () => {
                 exportarReporte(boton.dataset.reporte);
             });
-        });
-
-    document.querySelectorAll("[data-informativo]")
-        .forEach(enlace => {
-
-            enlace.addEventListener("click", evento => {
-                evento.preventDefault();
-
-                mostrarMensaje(
-                    `La sección ${enlace.dataset.informativo} ` +
-                    "está pendiente de implementar."
-                );
-            });
-        });
-
-    // ==========================================
-    // CARGA INICIAL
-    // ==========================================
-
-    cargarFiltroProgramas();
-
-    mostrarIndicadores();
-
-    mostrarEstadisticas(
-        "listaSectores",
-        contarSectores()
+        }
     );
 
-    mostrarEstadisticas(
-        "listaProgramas",
-        contarProgramas()
-    );
+    // ==========================================
+    // ACTUALIZAR INTERFAZ
+    // ==========================================
 
-    mostrarAvances();
-    mostrarProgramas();
-    mostrarApoyos();
+    function actualizarInterfaz() {
+        actualizarFiltroProgramas();
+        mostrarIndicadores();
+        mostrarEstadisticas();
+        mostrarAvances();
+        mostrarProgramas();
+        mostrarApoyos();
+    }
 
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
+
+    agregarBotonNuevo();
+
+    Promise.all([
+        cargarResumen(),
+        cargarProgramas(),
+        cargarInstructores()
+    ]).catch((error) => {
+        console.error(
+            "Error al inicializar Coordinador:",
+            error
+        );
+    });
 });

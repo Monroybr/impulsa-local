@@ -1,7 +1,9 @@
-
 document.addEventListener('DOMContentLoaded', function () {
-
     'use strict';
+
+    // ========================================
+    // CONFIGURACIÓN GENERAL
+    // ========================================
 
     const usuario = window.IMPULSA_USUARIO;
 
@@ -10,42 +12,36 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    const RUTA_PRODUCTOS = '/emprendedor/productos';
+    const RUTA_VENTAS = '/emprendedor/ventas';
+
+    const TOKEN_CSRF = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content;
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => document.querySelectorAll(selector);
+
+    const formatoDinero = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        maximumFractionDigits: 0
+    });
+
+    // Todos los productos y ventas se consultan
+    // directamente desde SQLite.
+    // No se eliminan datos antiguos de localStorage.
+
+    const datos = {
+        productos: [],
+        ventas: []
+    };
+
+    let inventarioDisponible = false;
+
     // ========================================
-    // CONFIGURACIÓN
+    // FUNCIONES GENERALES
     // ========================================
-
-    const CLAVE_LOCAL =
-        `impulsa-local-negocio-usuario-${usuario.id}-v1`;
-
-    const formatoDinero = new Intl.NumberFormat(
-        'es-CO',
-        {
-            style: 'currency',
-            currency: 'COP',
-            maximumFractionDigits: 0
-        }
-    );
-
-    const $ = (selector) =>
-        document.querySelector(selector);
-
-    const $$ = (selector) =>
-        document.querySelectorAll(selector);
-
-    function fechaLocal() {
-        const fecha = new Date();
-
-        return [
-            fecha.getFullYear(),
-            String(fecha.getMonth() + 1).padStart(2, '0'),
-            String(fecha.getDate()).padStart(2, '0')
-        ].join('-');
-    }
-
-    function nuevoId() {
-        return Date.now().toString(36) +
-            Math.random().toString(36).slice(2, 9);
-    }
 
     function textoSeguro(valor) {
         return String(valor ?? '')
@@ -57,65 +53,52 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function mostrarMensaje(texto, error = false) {
-        const contenedor = $('#mensajeSistema');
+        const elemento = $('#mensajeSistema');
 
-        if (!contenedor) return;
+        if (!elemento) {
+            console.log(texto);
+            return;
+        }
 
-        contenedor.textContent = texto;
-        contenedor.className = error
+        elemento.textContent = texto;
+        elemento.hidden = false;
+        elemento.className = error
             ? 'il-alerta il-error'
             : 'il-alerta';
     }
 
     // ========================================
-    // DATOS DEL NEGOCIO
+    // COMUNICACIÓN CON LARAVEL
     // ========================================
 
-    function cargarDatos() {
-        try {
-            const guardado = JSON.parse(
-                localStorage.getItem(CLAVE_LOCAL)
-            );
-
-            if (
-                guardado &&
-                Array.isArray(guardado.productos) &&
-                Array.isArray(guardado.ventas)
-            ) {
-                return guardado;
+    async function solicitarLaravel(url, opciones = {}) {
+        const respuesta = await fetch(url, {
+            credentials: 'same-origin',
+            ...opciones,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': TOKEN_CSRF || '',
+                ...(opciones.headers || {})
             }
-        } catch (error) {
-            console.error(
-                'No fue posible recuperar los datos:',
-                error
+        });
+
+        const contenido = await respuesta.json()
+            .catch(() => ({}));
+
+        if (!respuesta.ok) {
+            const validacion = contenido.errors
+                ? Object.values(contenido.errors).flat()[0]
+                : null;
+
+            throw new Error(
+                validacion ||
+                contenido.message ||
+                `Error del servidor (${respuesta.status})`
             );
         }
 
-        return {
-            productos: [],
-            ventas: []
-        };
-    }
-
-    let datos = cargarDatos();
-
-    function guardarDatos() {
-        try {
-            localStorage.setItem(
-                CLAVE_LOCAL,
-                JSON.stringify(datos)
-            );
-            return true;
-        } catch (error) {
-            console.error(error);
-
-            mostrarMensaje(
-                'No fue posible guardar los datos en este navegador.',
-                true
-            );
-
-            return false;
-        }
+        return contenido;
     }
 
     // ========================================
@@ -123,15 +106,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // ========================================
 
     function mostrarVista(nombre) {
-        $$('.vista').forEach(function (vista) {
-            const activa =
-                vista.id === `vista-${nombre}`;
+        $$('.vista').forEach(vista => {
+            const activa = vista.id === `vista-${nombre}`;
 
             vista.hidden = !activa;
             vista.classList.toggle('activa', activa);
         });
 
-        $$('.pestana[data-vista]').forEach(function (boton) {
+        $$('.pestana[data-vista]').forEach(boton => {
             boton.classList.toggle(
                 'activa',
                 boton.dataset.vista === nombre
@@ -144,56 +126,52 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    $$('.pestana[data-vista]').forEach(function (boton) {
-        boton.addEventListener('click', function () {
+    $$('.pestana[data-vista]').forEach(boton => {
+        boton.addEventListener('click', () => {
             mostrarVista(boton.dataset.vista);
         });
     });
 
     // ========================================
-    // PERFIL REAL DESDE LARAVEL
+    // PERFIL DEL EMPRENDEDOR
     // ========================================
 
-    const botonEditar = $('#editarPerfil');
-    const botonCancelar = $('#cancelarPerfil');
-    const perfilLectura = $('#perfilLectura');
-    const perfilFormulario = $('#perfilFormulario');
+    $('#editarPerfil')?.addEventListener('click', () => {
+        if ($('#perfilLectura')) {
+            $('#perfilLectura').hidden = true;
+        }
 
-    if (botonEditar && perfilFormulario) {
-        botonEditar.addEventListener('click', function () {
-            perfilLectura.hidden = true;
-            perfilFormulario.hidden = false;
-        });
-    }
+        if ($('#perfilFormulario')) {
+            $('#perfilFormulario').hidden = false;
+        }
+    });
 
-    if (botonCancelar && perfilFormulario) {
-        botonCancelar.addEventListener('click', function () {
-            perfilFormulario.hidden = true;
-            perfilLectura.hidden = false;
-        });
-    }
+    $('#cancelarPerfil')?.addEventListener('click', () => {
+        if ($('#perfilFormulario')) {
+            $('#perfilFormulario').hidden = true;
+        }
 
-    // El formulario del perfil se envía a Laravel
-    // mediante PUT /emprendedor/perfil.
-    // No se guarda el perfil personal en localStorage.
+        if ($('#perfilLectura')) {
+            $('#perfilLectura').hidden = false;
+        }
+    });
 
     // ========================================
-    // NAVEGACIÓN INVENTARIO / VENTAS
+    // PESTAÑAS INVENTARIO Y VENTAS
     // ========================================
 
     function mostrarNegocio(nombre) {
-        const inventario = $('#negocio-inventario');
-        const ventas = $('#negocio-ventas');
-
-        if (inventario) {
-            inventario.hidden = nombre !== 'inventario';
+        if ($('#negocio-inventario')) {
+            $('#negocio-inventario').hidden =
+                nombre !== 'inventario';
         }
 
-        if (ventas) {
-            ventas.hidden = nombre !== 'ventas';
+        if ($('#negocio-ventas')) {
+            $('#negocio-ventas').hidden =
+                nombre !== 'ventas';
         }
 
-        $$('[data-negocio]').forEach(function (boton) {
+        $$('[data-negocio]').forEach(boton => {
             const activo = boton.dataset.negocio === nombre;
 
             boton.classList.toggle('activo', activo);
@@ -201,14 +179,57 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    $$('[data-negocio]').forEach(function (boton) {
-        boton.addEventListener('click', function () {
+    $$('[data-negocio]').forEach(boton => {
+        boton.addEventListener('click', () => {
             mostrarNegocio(boton.dataset.negocio);
         });
     });
 
     // ========================================
-    // INVENTARIO
+    // PRODUCTOS: CONSULTAR SQLITE
+    // ========================================
+
+    async function cargarProductosSQLite() {
+        try {
+            const respuesta = await solicitarLaravel(
+                RUTA_PRODUCTOS
+            );
+
+            if (!Array.isArray(respuesta)) {
+                throw new Error(
+                    'Respuesta de productos no válida.'
+                );
+            }
+
+            datos.productos = respuesta.map(producto => ({
+                ...producto,
+                id: Number(producto.id),
+                compra: Number(producto.compra),
+                venta: Number(producto.venta),
+                stock: Number(producto.stock)
+            }));
+
+            inventarioDisponible = true;
+            renderizarInventario();
+
+            return true;
+
+        } catch (error) {
+            inventarioDisponible = false;
+
+            console.error(error);
+
+            mostrarMensaje(
+                'Error al cargar productos: ' + error.message,
+                true
+            );
+
+            return false;
+        }
+    }
+
+    // ========================================
+    // PRODUCTOS: MOSTRAR INVENTARIO
     // ========================================
 
     function renderizarInventario() {
@@ -220,19 +241,17 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#buscarProducto')?.value || ''
         ).toLowerCase().trim();
 
-        const productos = datos.productos.filter(function (producto) {
-            const contenido = [
-                producto.nombre,
+        const productos = datos.productos.filter(producto =>
+            [
                 producto.codigo,
+                producto.nombre,
                 producto.categoria
-            ].join(' ').toLowerCase();
-
-            return contenido.includes(busqueda);
-        });
+            ].join(' ').toLowerCase().includes(busqueda)
+        );
 
         cuerpo.innerHTML = '';
 
-        productos.forEach(function (producto) {
+        productos.forEach(producto => {
             const fila = document.createElement('tr');
 
             fila.innerHTML = `
@@ -244,21 +263,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>
                     ${producto.stock}
                     ${producto.stock <= 10
-                        ? '<span class="il-peligro"> Bajo</span>'
+                        ? '<span class="il-peligro">Bajo</span>'
                         : ''}
                 </td>
                 <td>
-                    <button
-                        type="button"
+                    <button type="button"
                         class="il-boton secundario"
-                        data-editar="${textoSeguro(producto.id)}">
+                        data-editar="${producto.id}">
                         Editar
                     </button>
-
-                    <button
-                        type="button"
+                    <button type="button"
                         class="il-boton secundario"
-                        data-eliminar="${textoSeguro(producto.id)}">
+                        data-eliminar="${producto.id}">
                         Eliminar
                     </button>
                 </td>
@@ -281,21 +297,31 @@ document.addEventListener('DOMContentLoaded', function () {
             0
         );
 
-        const bajo = datos.productos.filter(
+        const stockBajo = datos.productos.filter(
             producto => producto.stock <= 10
         ).length;
 
-        $('#totalProductos').textContent = total;
+        if ($('#totalProductos')) {
+            $('#totalProductos').textContent = total;
+        }
 
-        $('#valorInventario').textContent =
-            formatoDinero.format(valorInventario);
+        if ($('#valorInventario')) {
+            $('#valorInventario').textContent =
+                formatoDinero.format(valorInventario);
+        }
 
-        $('#valorPotencial').textContent =
-            formatoDinero.format(valorPotencial);
+        if ($('#valorPotencial')) {
+            $('#valorPotencial').textContent =
+                formatoDinero.format(valorPotencial);
+        }
 
-        $('#cantidadBajo').textContent = bajo;
+        if ($('#cantidadBajo')) {
+            $('#cantidadBajo').textContent = stockBajo;
+        }
 
-        $('#sinProductos').hidden = productos.length > 0;
+        if ($('#sinProductos')) {
+            $('#sinProductos').hidden = productos.length > 0;
+        }
     }
 
     $('#buscarProducto')?.addEventListener(
@@ -304,42 +330,61 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
     // ========================================
-    // MODAL PRODUCTO
+    // PRODUCTOS: CREAR Y EDITAR
     // ========================================
 
     const modalProducto = $('#modalProducto');
     const formProducto = $('#formProducto');
 
-    $('#nuevoProducto')?.addEventListener('click', function () {
+    $('#nuevoProducto')?.addEventListener('click', () => {
+        if (!inventarioDisponible) {
+            mostrarMensaje(
+                'El inventario aún no está disponible.',
+                true
+            );
+            return;
+        }
+
+        if (!modalProducto || !formProducto) {
+            mostrarMensaje(
+                'No se encontró el formulario de productos.',
+                true
+            );
+            return;
+        }
+
         formProducto.reset();
         formProducto.elements.producto_id.value = '';
 
-        $('#tituloModalProducto').textContent =
-            'Nuevo producto';
+        if ($('#tituloModalProducto')) {
+            $('#tituloModalProducto').textContent =
+                'Nuevo producto';
+        }
 
         modalProducto.showModal();
     });
 
-    formProducto?.addEventListener('submit', function (evento) {
+    formProducto?.addEventListener('submit', async evento => {
         evento.preventDefault();
 
         const formulario = new FormData(formProducto);
 
-        const idActual = formulario.get('producto_id');
+        const id = String(
+            formulario.get('producto_id') || ''
+        );
 
         const producto = {
-            id: idActual || nuevoId(),
-            nombre: String(formulario.get('nombre')).trim(),
-            codigo: String(formulario.get('codigo')).trim(),
-            categoria: String(formulario.get('categoria')).trim(),
+            codigo: String(formulario.get('codigo') || '').trim(),
+            nombre: String(formulario.get('nombre') || '').trim(),
+            categoria: String(formulario.get('categoria') || '').trim(),
             compra: Number(formulario.get('compra')),
             venta: Number(formulario.get('venta')),
             stock: Number(formulario.get('stock'))
         };
 
         if (
-            !producto.nombre ||
             !producto.codigo ||
+            !producto.nombre ||
             !producto.categoria ||
             !Number.isFinite(producto.compra) ||
             !Number.isFinite(producto.venta) ||
@@ -355,214 +400,321 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const codigoDuplicado = datos.productos.some(
-            existente =>
-                existente.codigo.toLowerCase() ===
-                    producto.codigo.toLowerCase() &&
-                existente.id !== producto.id
+        const boton = formProducto.querySelector(
+            '[type="submit"]'
         );
 
-        if (codigoDuplicado) {
-            mostrarMensaje(
-                'Ya existe un producto con ese código.',
-                true
+        if (boton) boton.disabled = true;
+
+        try {
+            await solicitarLaravel(
+                id ? `${RUTA_PRODUCTOS}/${id}` : RUTA_PRODUCTOS,
+                {
+                    method: id ? 'PUT' : 'POST',
+                    body: JSON.stringify(producto)
+                }
             );
-            return;
+
+            const actualizado = await cargarProductosSQLite();
+
+            if (actualizado) {
+                modalProducto.close();
+
+                mostrarMensaje(
+                    id
+                        ? 'Producto actualizado en SQLite.'
+                        : 'Producto registrado en SQLite.'
+                );
+            }
+
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+
+        } finally {
+            if (boton) boton.disabled = false;
         }
-
-        const posicion = datos.productos.findIndex(
-            existente => existente.id === producto.id
-        );
-
-        if (posicion >= 0) {
-            datos.productos[posicion] = producto;
-        } else {
-            datos.productos.push(producto);
-        }
-
-        guardarDatos();
-        renderizarInventario();
-
-        modalProducto.close();
-
-        mostrarMensaje(
-            'Producto guardado correctamente.'
-        );
     });
+
+    // ========================================
+    // PRODUCTOS: EDITAR Y ELIMINAR
+    // ========================================
 
     $('#filasInventario')?.addEventListener(
         'click',
-        function (evento) {
-
+        async evento => {
             const editar = evento.target.closest('[data-editar]');
             const eliminar = evento.target.closest('[data-eliminar]');
 
             if (editar) {
                 const producto = datos.productos.find(
-                    item => item.id === editar.dataset.editar
+                    item => item.id === Number(editar.dataset.editar)
                 );
 
-                if (!producto) return;
+                if (!producto || !formProducto || !modalProducto) {
+                    return;
+                }
+
+                [
+                    'codigo',
+                    'nombre',
+                    'categoria',
+                    'compra',
+                    'venta',
+                    'stock'
+                ].forEach(campo => {
+                    formProducto.elements[campo].value =
+                        producto[campo];
+                });
 
                 formProducto.elements.producto_id.value =
                     producto.id;
 
-                formProducto.elements.nombre.value =
-                    producto.nombre;
-
-                formProducto.elements.codigo.value =
-                    producto.codigo;
-
-                formProducto.elements.categoria.value =
-                    producto.categoria;
-
-                formProducto.elements.compra.value =
-                    producto.compra;
-
-                formProducto.elements.venta.value =
-                    producto.venta;
-
-                formProducto.elements.stock.value =
-                    producto.stock;
-
-                $('#tituloModalProducto').textContent =
-                    'Editar producto';
+                if ($('#tituloModalProducto')) {
+                    $('#tituloModalProducto').textContent =
+                        'Editar producto';
+                }
 
                 modalProducto.showModal();
             }
 
             if (eliminar) {
-                const id = eliminar.dataset.eliminar;
+                const id = Number(eliminar.dataset.eliminar);
 
                 if (!confirm(
-                    '¿Deseas eliminar este producto del inventario?'
+                    '¿Deseas eliminar este producto?'
                 )) {
                     return;
                 }
 
-                datos.productos = datos.productos.filter(
-                    producto => producto.id !== id
-                );
+                eliminar.disabled = true;
 
-                guardarDatos();
-                renderizarInventario();
+                try {
+                    await solicitarLaravel(
+                        `${RUTA_PRODUCTOS}/${id}`,
+                        { method: 'DELETE' }
+                    );
 
-                mostrarMensaje(
-                    'Producto eliminado del inventario.'
-                );
+                    await cargarProductosSQLite();
+
+                    mostrarMensaje(
+                        'Producto eliminado correctamente.'
+                    );
+
+                } catch (error) {
+                    mostrarMensaje(error.message, true);
+
+                } finally {
+                    eliminar.disabled = false;
+                }
             }
         }
     );
 
     // ========================================
-    // VENTAS
+    // VENTAS: CONSULTAR SQLITE
+    // ========================================
+
+    async function cargarVentasSQLite() {
+        try {
+            const respuesta = await solicitarLaravel(
+                RUTA_VENTAS
+            );
+
+            if (!Array.isArray(respuesta)) {
+                throw new Error(
+                    'Respuesta de ventas no válida.'
+                );
+            }
+
+            datos.ventas = respuesta;
+
+            renderizarVentas();
+
+            return true;
+
+        } catch (error) {
+            console.error(error);
+
+            mostrarMensaje(
+                'Error al cargar ventas: ' + error.message,
+                true
+            );
+
+            return false;
+        }
+    }
+
+    // ========================================
+    // VENTAS: FORMULARIO
     // ========================================
 
     const modalVenta = $('#modalVenta');
     const formVenta = $('#formVenta');
 
-    $('#nuevaVenta')?.addEventListener('click', function () {
-        const disponibles = datos.productos.filter(
-            producto => producto.stock > 0
-        );
+    function actualizarProductosVenta() {
+        const selector = $('#productoVenta');
 
-        if (!disponibles.length) {
+        if (!selector) return;
+
+        selector.innerHTML =
+            '<option value="">Selecciona un producto</option>';
+
+        datos.productos
+            .filter(producto => producto.stock > 0)
+            .forEach(producto => {
+                const opcion = document.createElement('option');
+
+                opcion.value = producto.id;
+
+                opcion.textContent =
+                    `${producto.nombre} - Stock: ${producto.stock}`;
+
+                selector.appendChild(opcion);
+            });
+    }
+
+    $('#nuevaVenta')?.addEventListener('click', async () => {
+        if (!modalVenta || !formVenta || !$('#productoVenta')) {
             mostrarMensaje(
-                'Primero registra productos con stock disponible.',
+                'No se encontró el formulario para registrar ventas.',
                 true
             );
             return;
         }
 
-        const selector = $('#productoVenta');
-        selector.innerHTML = '';
+        const actualizado = await cargarProductosSQLite();
 
-        disponibles.forEach(function (producto) {
-            const opcion = document.createElement('option');
+        if (!actualizado) return;
 
-            opcion.value = producto.id;
-            opcion.textContent =
-                `${producto.nombre} - Stock: ${producto.stock}`;
+        actualizarProductosVenta();
 
-            selector.appendChild(opcion);
-        });
+        if (!datos.productos.some(
+            producto => producto.stock > 0
+        )) {
+            mostrarMensaje(
+                'No hay productos con existencias disponibles.',
+                true
+            );
+            return;
+        }
 
         formVenta.reset();
-        formVenta.elements.fecha.value = fechaLocal();
+
+        if ($('#fechaVenta')) {
+            $('#fechaVenta').value = fechaLocal();
+            $('#fechaVenta').disabled = true;
+        }
 
         modalVenta.showModal();
     });
 
-    formVenta?.addEventListener('submit', function (evento) {
+    // ========================================
+    // VENTAS: REGISTRAR EN SQLITE
+    // ========================================
+
+    formVenta?.addEventListener('submit', async evento => {
         evento.preventDefault();
 
         const formulario = new FormData(formVenta);
 
-        const producto = datos.productos.find(
-            item =>
-                item.id === formulario.get('producto_id')
+        const productoId = Number(
+            formulario.get('producto_id')
         );
 
         const cantidad = Number(
             formulario.get('cantidad')
         );
 
-        const fecha = String(
-            formulario.get('fecha') || ''
-        );
-
         if (
-            !producto ||
+            !Number.isInteger(productoId) ||
+            productoId < 1 ||
             !Number.isInteger(cantidad) ||
-            cantidad <= 0 ||
-            cantidad > producto.stock ||
-            !/^\d{4}-\d{2}-\d{2}$/.test(fecha)
+            cantidad < 1
         ) {
             mostrarMensaje(
-                'Verifica la cantidad, el producto y la fecha.',
+                'Selecciona un producto y una cantidad válida.',
                 true
             );
             return;
         }
 
-        const venta = {
-            id: nuevoId(),
-            fecha: fecha,
-            producto_id: producto.id,
-            producto: producto.nombre,
-            cantidad: cantidad,
-            precio_unitario: producto.venta,
-            total: producto.venta * cantidad
-        };
-
-        producto.stock -= cantidad;
-
-        datos.ventas.push(venta);
-
-        guardarDatos();
-
-        renderizarInventario();
-        renderizarVentas();
-
-        modalVenta.close();
-
-        mostrarMensaje(
-            'Venta registrada y stock actualizado correctamente.'
+        const boton = formVenta.querySelector(
+            '[type="submit"]'
         );
+
+        if (boton?.disabled) return;
+        if (boton) boton.disabled = true;
+
+        try {
+            await solicitarLaravel(RUTA_VENTAS, {
+                method: 'POST',
+                body: JSON.stringify({
+                    productos: [
+                        {
+                            producto_id: productoId,
+                            cantidad: cantidad
+                        }
+                    ]
+                })
+            });
+
+            modalVenta.close();
+
+            const resultados = await Promise.all([
+                cargarProductosSQLite(),
+                cargarVentasSQLite()
+            ]);
+
+            if (resultados.every(Boolean)) {
+                mostrarMensaje(
+                    'Venta registrada correctamente en SQLite.'
+                );
+            } else {
+                mostrarMensaje(
+                    'Venta guardada, pero no se pudo actualizar toda la información. Recarga la página.',
+                    true
+                );
+            }
+
+        } catch (error) {
+            mostrarMensaje(error.message, true);
+
+        } finally {
+            if (boton) boton.disabled = false;
+        }
     });
 
-    function obtenerInicioSemana(fecha) {
-        const resultado = new Date(
+    // ========================================
+    // FUNCIONES DE FECHAS
+    // ========================================
+
+    function fechaLocal() {
+        const fecha = new Date();
+
+        return [
             fecha.getFullYear(),
-            fecha.getMonth(),
-            fecha.getDate()
-        );
-
-        const dia = (resultado.getDay() + 6) % 7;
-        resultado.setDate(resultado.getDate() - dia);
-
-        return resultado;
+            String(fecha.getMonth() + 1).padStart(2, '0'),
+            String(fecha.getDate()).padStart(2, '0')
+        ].join('-');
     }
+
+    function inicioSemana() {
+        const fecha = new Date();
+
+        const dia = (fecha.getDay() + 6) % 7;
+
+        fecha.setDate(fecha.getDate() - dia);
+
+        return [
+            fecha.getFullYear(),
+            String(fecha.getMonth() + 1).padStart(2, '0'),
+            String(fecha.getDate()).padStart(2, '0')
+        ].join('-');
+    }
+
+    // ========================================
+    // VENTAS: MOSTRAR DATOS REALES DE SQLITE
+    // ========================================
 
     function renderizarVentas() {
         const cuerpo = $('#filasVentas');
@@ -571,64 +723,96 @@ document.addEventListener('DOMContentLoaded', function () {
 
         cuerpo.innerHTML = '';
 
-        const ventas = [...datos.ventas].sort(
-            (a, b) => b.fecha.localeCompare(a.fecha)
+        // Cada registro proviene de la tabla ventas
+        // y sus detalles de detalle_ventas.
+
+        const ventasSQLite = datos.ventas.flatMap(venta =>
+            (venta.detalles || []).map(detalle => ({
+                fecha: String(
+                    venta.fecha_venta || ''
+                ).slice(0, 10),
+
+                producto: detalle.nombre_producto,
+                cantidad: Number(detalle.cantidad),
+                precio_unitario: Number(detalle.precio_unitario),
+                total: Number(detalle.subtotal)
+            }))
         );
 
-        ventas.forEach(function (venta) {
+        ventasSQLite.sort(
+            (a, b) =>
+                String(b.fecha).localeCompare(String(a.fecha))
+        );
+
+        ventasSQLite.forEach(venta => {
             const fila = document.createElement('tr');
 
             fila.innerHTML = `
                 <td>${textoSeguro(venta.fecha)}</td>
                 <td>${textoSeguro(venta.producto)}</td>
-                <td>${venta.cantidad}</td>
-                <td>${formatoDinero.format(venta.total)}</td>
+                <td>${textoSeguro(venta.cantidad)}</td>
+                <td>${formatoDinero.format(
+                    Number(venta.total) || 0
+                )}</td>
             `;
 
             cuerpo.appendChild(fila);
         });
 
+        // ====================================
+        // ESTADÍSTICAS REALES
+        // ====================================
+
         const hoy = fechaLocal();
-
-        const fechaActual = new Date();
-        const inicioSemana = obtenerInicioSemana(fechaActual);
-
-        const semana = [
-            inicioSemana.getFullYear(),
-            String(inicioSemana.getMonth() + 1).padStart(2, '0'),
-            String(inicioSemana.getDate()).padStart(2, '0')
-        ].join('-');
-
+        const semana = inicioSemana();
         const mes = hoy.slice(0, 7);
 
-        const totalHoy = ventas
-            .filter(venta => venta.fecha === hoy)
-            .reduce((suma, venta) => suma + venta.total, 0);
+        const sumar = lista => lista.reduce(
+            (total, venta) =>
+                total + (Number(venta.total) || 0),
+            0
+        );
 
-        const totalSemana = ventas
-            .filter(
-                venta =>
-                    venta.fecha >= semana &&
-                    venta.fecha <= hoy
-            )
-            .reduce((suma, venta) => suma + venta.total, 0);
+        if ($('#ventasHoy')) {
+            $('#ventasHoy').textContent =
+                formatoDinero.format(
+                    sumar(
+                        ventasSQLite.filter(
+                            venta => venta.fecha === hoy
+                        )
+                    )
+                );
+        }
 
-        const totalMes = ventas
-            .filter(
-                venta => venta.fecha.slice(0, 7) === mes
-            )
-            .reduce((suma, venta) => suma + venta.total, 0);
+        if ($('#ventasSemana')) {
+            $('#ventasSemana').textContent =
+                formatoDinero.format(
+                    sumar(
+                        ventasSQLite.filter(
+                            venta =>
+                                venta.fecha >= semana &&
+                                venta.fecha <= hoy
+                        )
+                    )
+                );
+        }
 
-        $('#ventasHoy').textContent =
-            formatoDinero.format(totalHoy);
+        if ($('#ventasMes')) {
+            $('#ventasMes').textContent =
+                formatoDinero.format(
+                    sumar(
+                        ventasSQLite.filter(
+                            venta =>
+                                venta.fecha.slice(0, 7) === mes
+                        )
+                    )
+                );
+        }
 
-        $('#ventasSemana').textContent =
-            formatoDinero.format(totalSemana);
-
-        $('#ventasMes').textContent =
-            formatoDinero.format(totalMes);
-
-        $('#sinVentas').hidden = ventas.length > 0;
+        if ($('#sinVentas')) {
+            $('#sinVentas').hidden =
+                ventasSQLite.length > 0;
+        }
     }
 
     // ========================================
@@ -639,13 +823,14 @@ document.addEventListener('DOMContentLoaded', function () {
         function celda(valor) {
             let texto = String(valor ?? '');
 
-            // Evitar interpretar contenido como fórmula
-            // al abrir el archivo en una hoja de cálculo.
-            if (/^[\s]*[=+\-@]/.test(texto)) {
+            // Protección frente a fórmulas CSV
+            if (/^\s*[=+\-@]/.test(texto)) {
                 texto = "'" + texto;
             }
 
-            return '"' + texto.replaceAll('"', '""') + '"';
+            return '"' +
+                texto.replaceAll('"', '""') +
+                '"';
         }
 
         const contenido = [
@@ -662,22 +847,38 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
 
-        const enlace = document.createElement('a');
         const url = URL.createObjectURL(archivo);
+
+        const enlace = document.createElement('a');
 
         enlace.href = url;
         enlace.download = nombre;
 
         document.body.appendChild(enlace);
+
         enlace.click();
         enlace.remove();
 
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+        }, 1000);
     }
+
+    // ========================================
+    // EXPORTAR INVENTARIO SQLITE
+    // ========================================
 
     $('#exportarInventario')?.addEventListener(
         'click',
-        function () {
+        () => {
+            if (!inventarioDisponible) {
+                mostrarMensaje(
+                    'El inventario todavía no está disponible.',
+                    true
+                );
+                return;
+            }
+
             exportarCSV(
                 'inventario-impulsa-local.csv',
                 [
@@ -700,9 +901,26 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
+    // ========================================
+    // EXPORTAR VENTAS SOLO DESDE SQLITE
+    // ========================================
+
     $('#exportarVentas')?.addEventListener(
         'click',
-        function () {
+        () => {
+            const filas = datos.ventas.flatMap(venta =>
+                (venta.detalles || []).map(detalle => [
+                    String(
+                        venta.fecha_venta || ''
+                    ).slice(0, 10),
+
+                    detalle.nombre_producto,
+                    detalle.cantidad,
+                    detalle.precio_unitario,
+                    detalle.subtotal
+                ])
+            );
+
             exportarCSV(
                 'ventas-impulsa-local.csv',
                 [
@@ -712,29 +930,23 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Precio unitario',
                     'Total'
                 ],
-                datos.ventas.map(venta => [
-                    venta.fecha,
-                    venta.producto,
-                    venta.cantidad,
-                    venta.precio_unitario,
-                    venta.total
-                ])
+                filas
             );
         }
     );
 
     // ========================================
-    // CERRAR MODALES
+    // CERRAR VENTANAS MODALES
     // ========================================
 
-    $$('[data-cerrar]').forEach(function (boton) {
-        boton.addEventListener('click', function () {
-            const modal = document.getElementById(
-                boton.dataset.cerrar
-            );
+    $$('[data-cerrar]').forEach(boton => {
+        boton.addEventListener('click', () => {
+            const id = boton.dataset.cerrar;
 
-            if (modal) {
-                modal.close();
+            if (id) {
+                document.getElementById(id)?.close();
+            } else {
+                boton.closest('dialog')?.close();
             }
         });
     });
@@ -748,5 +960,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderizarInventario();
     renderizarVentas();
+
+    cargarProductosSQLite();
+    cargarVentasSQLite();
 
 });

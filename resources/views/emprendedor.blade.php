@@ -566,8 +566,10 @@
             </p>
 
             <p class="il-dato">
-                Los datos de este módulo se guardan localmente
-                en este navegador, separados por cuenta.
+                La información del inventario y las ventas se
+                almacena en la base de datos del sistema,
+                de manera segura e independiente para
+                cada emprendedor.
             </p>
 
             <div class="il-botones">

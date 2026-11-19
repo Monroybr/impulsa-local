@@ -1,213 +1,48 @@
-
 document.addEventListener("DOMContentLoaded", () => {
+    "use strict";
 
     // ==========================================
-    // DATOS DE DEMOSTRACIÓN
-    // ==========================================
-
-    const programas = [
-        {
-            id: 1,
-            nombre: "Plan de Negocios desde Cero",
-            tematica: "Estrategia",
-            estado: "activo",
-            duracion: "8 semanas",
-            cupos: 30,
-            inicio: "2024-07-01",
-            participantes: [
-                {
-                    nombre: "María García",
-                    emprendimiento: "Panadería El Trigal",
-                    inscripcion: "2024-07-02",
-                    progreso: 75
-                },
-                {
-                    nombre: "Jorge Pérez",
-                    emprendimiento: "Artesanías Pérez",
-                    inscripcion: "2024-07-03",
-                    progreso: 60
-                }
-            ]
-        },
-        {
-            id: 2,
-            nombre: "Marketing Digital para Emprendedores",
-            tematica: "Marketing",
-            estado: "activo",
-            duracion: "6 semanas",
-            cupos: 25,
-            inicio: "2024-07-15",
-            participantes: [
-                {
-                    nombre: "María García",
-                    emprendimiento: "Panadería El Trigal",
-                    inscripcion: "2024-07-16",
-                    progreso: 50
-                },
-                {
-                    nombre: "Lucía Ramírez",
-                    emprendimiento: "Modas Lucía",
-                    inscripcion: "2024-07-17",
-                    progreso: 80
-                }
-            ]
-        },
-        {
-            id: 3,
-            nombre: "Finanzas para No Financieros",
-            tematica: "Finanzas",
-            estado: "activo",
-            duracion: "5 semanas",
-            cupos: 20,
-            inicio: "2024-08-01",
-            participantes: [
-                {
-                    nombre: "Jorge Pérez",
-                    emprendimiento: "Artesanías Pérez",
-                    inscripcion: "2024-08-02",
-                    progreso: 30
-                },
-                {
-                    nombre: "Tomás Herrera",
-                    emprendimiento: "Taller Herrera",
-                    inscripcion: "2024-08-03",
-                    progreso: 20
-                }
-            ]
-        },
-        {
-            id: 4,
-            nombre: "Liderazgo y Gestión de Equipos",
-            tematica: "Liderazgo",
-            estado: "inactivo",
-            duracion: "7 semanas",
-            cupos: 20,
-            inicio: "2024-09-01",
-            participantes: []
-        },
-        {
-            id: 5,
-            nombre: "E-commerce: Vende en Línea",
-            tematica: "Ventas",
-            estado: "activo",
-            duracion: "6 semanas",
-            cupos: 30,
-            inicio: "2024-08-15",
-            participantes: [
-                {
-                    nombre: "Lucía Ramírez",
-                    emprendimiento: "Modas Lucía",
-                    inscripcion: "2024-08-16",
-                    progreso: 40
-                },
-                {
-                    nombre: "Camila Torres",
-                    emprendimiento: "Tienda La Esquina",
-                    inscripcion: "2024-08-17",
-                    progreso: 55
-                }
-            ]
-        },
-        {
-            id: 6,
-            nombre: "Atención al Cliente y Fidelización",
-            tematica: "Ventas",
-            estado: "finalizado",
-            duracion: "4 semanas",
-            cupos: 25,
-            inicio: "2024-05-01",
-            participantes: [
-                {
-                    nombre: "María García",
-                    emprendimiento: "Panadería El Trigal",
-                    inscripcion: "2024-05-02",
-                    progreso: 100
-                },
-                {
-                    nombre: "Andrés Molina",
-                    emprendimiento: "Sabores Molina",
-                    inscripcion: "2024-05-03",
-                    progreso: 100
-                }
-            ]
-        }
-    ];
-
-    // Reportes de ejemplo.
-    // No están sincronizados con el emprendedor.
-
-    const reportesEjemplo = [
-        {
-            programaId: 1,
-            emprendedor: "María García",
-            fecha: "2024-07-10",
-            logros: "He organizado mejor los gastos de mi panadería.",
-            dificultades: "Tengo dudas sobre el presupuesto inicial.",
-            apoyo: "Necesito orientación para calcular costos."
-        },
-        {
-            programaId: 2,
-            emprendedor: "María García",
-            fecha: "2024-08-05",
-            logros: "He creado una página para promocionar mis productos.",
-            dificultades: "No conozco bien las herramientas de publicidad.",
-            apoyo: "Necesito asesoría sobre marketing digital."
-        }
-    ];
-
-    // ==========================================
-    // ELEMENTOS HTML
+    // CONFIGURACIÓN
     // ==========================================
 
     const $ = id => document.getElementById(id);
+
+    const RUTAS = {
+        programas: "/instructor/programas",
+
+        participantes: id =>
+            `/instructor/programas/${id}/participantes`,
+
+        reportes: id =>
+            `/instructor/inscripciones/${id}/reportes`,
+
+        observaciones: id =>
+            `/instructor/inscripciones/${id}/observaciones`,
+
+        progreso: id =>
+            `/instructor/inscripciones/${id}/progreso`
+    };
+
+    const csrf = document.querySelector(
+        'meta[name="csrf-token"]'
+    )?.content;
 
     const contenedorProgramas = $("contenedorProgramas");
     const panelParticipantes = $("panelParticipantes");
     const tituloParticipantes = $("tituloParticipantes");
     const contenidoParticipantes = $("contenidoParticipantes");
-
     const panelSeguimiento = $("panelSeguimiento");
     const modalObservacion = $("modalObservacion");
     const formObservacion = $("formObservacion");
 
+    let programas = [];
+    let participantes = [];
     let programaSeleccionado = null;
     let participanteSeleccionado = null;
-
-    // ==========================================
-    // ALMACENAMIENTO LOCAL
-    // ==========================================
-
-    const CLAVE = "impulsa-instructor-observaciones-v1";
-
-    function cargarObservaciones() {
-        try {
-            const guardado = JSON.parse(
-                localStorage.getItem(CLAVE) || "[]"
-            );
-
-            return Array.isArray(guardado) ? guardado : [];
-        } catch (error) {
-            console.warn("No se pudieron cargar observaciones.", error);
-            return [];
-        }
-    }
-
-    let observaciones = cargarObservaciones();
-
-    function guardarObservaciones() {
-        try {
-            localStorage.setItem(
-                CLAVE,
-                JSON.stringify(observaciones)
-            );
-
-            return true;
-        } catch (error) {
-            console.error("Error al guardar observaciones:", error);
-            mostrarMensaje("No se pudo guardar la observación.");
-            return false;
-        }
-    }
+    let guardando = false;
+    let guardandoProgreso = false;
+    let solicitudParticipantes = 0;
+    let solicitudSeguimiento = 0;
 
     // ==========================================
     // FUNCIONES GENERALES
@@ -222,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ">": "&gt;",
                 '"': "&quot;",
                 "'": "&#39;"
-            }[caracter])
+            })[caracter]
         );
     }
 
@@ -230,14 +65,35 @@ document.addEventListener("DOMContentLoaded", () => {
         const hoy = new Date();
 
         const anio = hoy.getFullYear();
-        const mes = String(hoy.getMonth() + 1).padStart(2, "0");
-        const dia = String(hoy.getDate()).padStart(2, "0");
+        const mes = String(
+            hoy.getMonth() + 1
+        ).padStart(2, "0");
+
+        const dia = String(
+            hoy.getDate()
+        ).padStart(2, "0");
 
         return `${anio}-${mes}-${dia}`;
     }
 
+    function fechaCorta(valor) {
+        if (!valor) return "Sin fecha";
+
+        return String(valor).slice(0, 10);
+    }
+
+    function porcentaje(valor) {
+        const numero = Number(valor);
+
+        if (!Number.isFinite(numero)) return 0;
+
+        return Math.max(0, Math.min(100, numero));
+    }
+
     function mostrarMensaje(texto) {
         const elemento = $("mensajeInstructor");
+
+        if (!elemento) return;
 
         elemento.textContent = texto;
         elemento.hidden = false;
@@ -246,167 +102,350 @@ document.addEventListener("DOMContentLoaded", () => {
 
         mostrarMensaje.temporizador = setTimeout(() => {
             elemento.hidden = true;
-        }, 3500);
+        }, 4500);
+    }
+
+    function mostrarError(error) {
+        console.error(error);
+
+        mostrarMensaje(
+            error.message || "Ocurrió un error inesperado."
+        );
+    }
+
+    async function solicitarLaravel(url, opciones = {}) {
+        const respuesta = await fetch(url, {
+            ...opciones,
+            credentials: "same-origin",
+            headers: {
+                Accept: "application/json",
+
+                ...(opciones.body
+                    ? { "Content-Type": "application/json" }
+                    : {}),
+
+                ...(csrf ? { "X-CSRF-TOKEN": csrf } : {}),
+
+                ...(opciones.headers || {})
+            }
+        });
+
+        const tipo = respuesta.headers.get(
+            "content-type"
+        ) || "";
+
+        const datos = tipo.includes("application/json")
+            ? await respuesta.json()
+            : null;
+
+        if (!respuesta.ok) {
+            const errores = datos?.errors;
+
+            const primerError = errores
+                ? Object.values(errores).flat()[0]
+                : null;
+
+            throw new Error(
+                primerError ||
+                datos?.message ||
+                `Error del servidor (${respuesta.status}).`
+            );
+        }
+
+        if (datos === null) {
+            throw new Error(
+                "Laravel no devolvió una respuesta JSON válida."
+            );
+        }
+
+        return datos;
     }
 
     function obtenerPrograma(id) {
         return programas.find(
-            programa => programa.id === Number(id)
+            programa => Number(programa.id) === Number(id)
         );
     }
 
-    function obtenerParticipante(programa, indice) {
-        if (!programa) return null;
+    function obtenerParticipante(id) {
+        return participantes.find(
+            participante =>
+                Number(participante.id) === Number(id)
+        );
+    }
 
-        return programa.participantes[Number(indice)] || null;
+    function nombreEmprendedor(inscripcion) {
+        return inscripcion.emprendedor?.name ||
+            "Emprendedor sin nombre";
+    }
+
+    function negocioEmprendedor(inscripcion) {
+        return inscripcion.emprendedor?.nombre_negocio ||
+            "Sin emprendimiento registrado";
     }
 
     // ==========================================
-    // MOSTRAR PROGRAMAS
+    // PROGRAMAS ASIGNADOS DESDE SQLITE
     // ==========================================
+
+    async function cargarProgramas() {
+        contenedorProgramas.innerHTML =
+            "<p>Cargando programas asignados...</p>";
+
+        try {
+            const respuesta = await solicitarLaravel(
+                RUTAS.programas
+            );
+
+            if (!Array.isArray(respuesta)) {
+                throw new Error(
+                    "El servidor no devolvió una lista de programas."
+                );
+            }
+
+            programas = respuesta;
+
+            mostrarProgramas();
+
+        } catch (error) {
+            contenedorProgramas.innerHTML =
+                '<p class="estado-vacio">' +
+                'No se pudieron cargar los programas.' +
+                '</p>';
+
+            mostrarError(error);
+        }
+    }
 
     function mostrarProgramas() {
+        $("cantidadProgramas").textContent =
+            programas.length;
 
-        $("cantidadProgramas").textContent = programas.length;
-
-        contenedorProgramas.innerHTML = programas.map(programa => {
-
-            const seleccionado =
-                programaSeleccionado === programa.id;
-
-            const cantidad = programa.participantes.length;
-
-            const textoBoton = seleccionado
-                ? "▲ Ocultar participantes"
-                : "▼ Ver participantes";
-
-            return `
-                <article class="tarjeta-programa
-                    ${seleccionado ? "seleccionada" : ""}">
-
-                    <div class="programa-cabecera">
-                        <h3>${escaparHTML(programa.nombre)}</h3>
-
-                        <span class="estado-programa
-                            ${programa.estado}">
-                            ${escaparHTML(programa.estado)}
-                        </span>
-                    </div>
-
-                    <span class="tematica">
-                        ${escaparHTML(programa.tematica)}
-                    </span>
-
-                    <div class="dato-programa">
-                        <span>Duración:</span>
-                        <span>${escaparHTML(programa.duracion)}</span>
-                    </div>
-
-                    <div class="dato-programa">
-                        <span>Inscritos:</span>
-                        <strong>${cantidad}/${programa.cupos}</strong>
-                    </div>
-
-                    <div class="dato-programa">
-                        <span>Inicio:</span>
-                        <span>${escaparHTML(programa.inicio)}</span>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="boton-participantes"
-                        data-programa="${programa.id}"
-                        aria-expanded="${seleccionado}"
-                        aria-controls="panelParticipantes">
-                        ${textoBoton}
-                    </button>
-
-                </article>
+        if (programas.length === 0) {
+            contenedorProgramas.innerHTML = `
+                <p class="estado-vacio">
+                    Todavía no tienes programas asignados.
+                </p>
             `;
-        }).join("");
+
+            return;
+        }
+
+        contenedorProgramas.innerHTML = programas.map(
+            programa => {
+                const seleccionado =
+                    Number(programaSeleccionado) ===
+                    Number(programa.id);
+
+                const inscritos = Number(
+                    programa.inscripciones_count || 0
+                );
+
+                const cupos = Number(programa.cupos || 0);
+
+                const duracion =
+                    programa.duracion_semanas
+                        ? `${programa.duracion_semanas} semanas`
+                        : "No definida";
+
+                const estado = String(
+                    programa.estado || "sin estado"
+                );
+
+                const claseEstado = [
+                    "activo",
+                    "inactivo",
+                    "finalizado"
+                ].includes(estado)
+                    ? estado
+                    : "inactivo";
+
+                return `
+                    <article class="tarjeta-programa
+                        ${seleccionado ? "seleccionada" : ""}">
+
+                        <div class="programa-cabecera">
+                            <h3>
+                                ${escaparHTML(programa.nombre)}
+                            </h3>
+
+                            <span class="estado-programa
+                                ${claseEstado}">
+                                ${escaparHTML(estado)}
+                            </span>
+                        </div>
+
+                        <span class="tematica">
+                            ${escaparHTML(programa.tematica)}
+                        </span>
+
+                        <div class="dato-programa">
+                            <span>Duración:</span>
+                            <span>${escaparHTML(duracion)}</span>
+                        </div>
+
+                        <div class="dato-programa">
+                            <span>Inscritos:</span>
+                            <strong>${inscritos}/${cupos}</strong>
+                        </div>
+
+                        <div class="dato-programa">
+                            <span>Inicio:</span>
+                            <span>
+                                ${escaparHTML(
+                                    fechaCorta(programa.fecha_inicio)
+                                )}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="boton-participantes"
+                            data-programa="${programa.id}"
+                            aria-expanded="${seleccionado}"
+                            aria-controls="panelParticipantes">
+
+                            ${seleccionado
+                                ? "▲ Ocultar participantes"
+                                : "▼ Ver participantes"}
+                        </button>
+                    </article>
+                `;
+            }
+        ).join("");
     }
 
     // ==========================================
-    // MOSTRAR PARTICIPANTES
+    // PARTICIPANTES DESDE SQLITE
     // ==========================================
 
-    function mostrarParticipantes(programa) {
+    async function cargarParticipantes(programa) {
+        const solicitud = ++solicitudParticipantes;
 
         tituloParticipantes.textContent =
             "Participantes — " + programa.nombre;
 
-        if (programa.participantes.length === 0) {
+        contenidoParticipantes.innerHTML =
+            "<p>Cargando participantes...</p>";
+
+        panelParticipantes.hidden = false;
+
+        try {
+            const respuesta = await solicitarLaravel(
+                RUTAS.participantes(programa.id)
+            );
+
+            if (
+                solicitud !== solicitudParticipantes ||
+                Number(programaSeleccionado) !==
+                    Number(programa.id)
+            ) {
+                return;
+            }
+
+            if (!Array.isArray(respuesta.participantes)) {
+                throw new Error(
+                    "No se recibió la lista de participantes."
+                );
+            }
+
+            participantes = respuesta.participantes;
+
+            mostrarParticipantes();
+
+        } catch (error) {
+            if (solicitud !== solicitudParticipantes) return;
+
+            contenidoParticipantes.innerHTML =
+                '<p class="estado-vacio">' +
+                'No se pudieron cargar los participantes.' +
+                '</p>';
+
+            mostrarError(error);
+        }
+    }
+
+    function mostrarParticipantes() {
+        if (participantes.length === 0) {
             contenidoParticipantes.innerHTML = `
                 <p class="sin-participantes">
                     Sin participantes inscritos.
                 </p>
             `;
 
-            panelParticipantes.hidden = false;
             return;
         }
 
-        const filas = programa.participantes.map(
-            (persona, indice) => {
+        const filas = participantes.map(inscripcion => {
+            const progreso = porcentaje(
+                inscripcion.progreso
+            );
 
-                const completado = persona.progreso === 100;
+            const completado = progreso === 100;
 
-                const estado = completado
-                    ? "completado"
-                    : "en curso";
+            const estado = completado
+                ? "completado"
+                : inscripcion.estado || "en curso";
 
-                const claseEstado = completado
-                    ? "completado"
-                    : "en-curso";
+            const claseEstado = completado
+                ? "completado"
+                : "en-curso";
 
-                return `
-                    <tr>
-                        <td>
-                            ${escaparHTML(persona.nombre)}
-                        </td>
+            return `
+                <tr>
+                    <td>
+                        ${escaparHTML(
+                            nombreEmprendedor(inscripcion)
+                        )}
+                    </td>
 
-                        <td class="emprendimiento-tabla">
-                            ${escaparHTML(persona.emprendimiento)}
-                        </td>
+                    <td class="emprendimiento-tabla">
+                        ${escaparHTML(
+                            negocioEmprendedor(inscripcion)
+                        )}
+                    </td>
 
-                        <td class="fecha-inscripcion">
-                            ${escaparHTML(persona.inscripcion)}
-                        </td>
+                    <td class="fecha-inscripcion">
+                        ${escaparHTML(
+                            fechaCorta(
+                                inscripcion.fecha_inscripcion
+                            )
+                        )}
+                    </td>
 
-                        <td>
-                            <div class="progreso-contenedor">
-                                <div class="progreso-fondo">
-                                    <div
-                                        class="progreso-relleno"
-                                        style="width:${persona.progreso}%">
-                                    </div>
+                    <td>
+                        <div class="progreso-contenedor">
+                            <div class="progreso-fondo">
+                                <div
+                                    class="progreso-relleno"
+                                    style="width:${progreso}%">
                                 </div>
-
-                                <span class="progreso-texto">
-                                    ${persona.progreso}%
-                                </span>
                             </div>
-                        </td>
 
-                        <td>
-                            <span class="estado-participante
-                                ${claseEstado}">
-                                ${estado}
+                            <span class="progreso-texto">
+                                ${progreso}%
                             </span>
-                        </td>
+                        </div>
+                    </td>
 
-                        <td>
-                            <button
-                                type="button"
-                                class="boton-seguimiento"
-                                data-seguimiento="${indice}">
-                                Ver seguimiento
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }
-        ).join("");
+                    <td>
+                        <span class="estado-participante
+                            ${claseEstado}">
+                            ${escaparHTML(estado)}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="boton-seguimiento"
+                            data-seguimiento="${inscripcion.id}">
+                            Ver seguimiento
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join("");
 
         contenidoParticipantes.innerHTML = `
             <div class="tabla-contenedor">
@@ -428,332 +467,448 @@ document.addEventListener("DOMContentLoaded", () => {
                 </table>
             </div>
         `;
-
-        panelParticipantes.hidden = false;
     }
 
     // ==========================================
     // ABRIR Y CERRAR PROGRAMAS
     // ==========================================
 
-    contenedorProgramas.addEventListener("click", evento => {
+    contenedorProgramas.addEventListener(
+        "click",
+        async evento => {
+            const boton = evento.target.closest(
+                "[data-programa]"
+            );
 
-        const boton = evento.target.closest("[data-programa]");
+            if (!boton) return;
 
-        if (!boton) return;
+            const id = Number(boton.dataset.programa);
 
-        const idPrograma = Number(boton.dataset.programa);
+            if (Number(programaSeleccionado) === id) {
+                programaSeleccionado = null;
+                participanteSeleccionado = null;
+                participantes = [];
 
-        if (programaSeleccionado === idPrograma) {
+                solicitudParticipantes++;
+                solicitudSeguimiento++;
+
+                panelParticipantes.hidden = true;
+                panelSeguimiento.hidden = true;
+
+                mostrarProgramas();
+                return;
+            }
+
+            const programa = obtenerPrograma(id);
+
+            if (!programa) return;
+
+            programaSeleccionado = id;
+            participanteSeleccionado = null;
+            participantes = [];
+
+            solicitudSeguimiento++;
+
+            panelSeguimiento.hidden = true;
+
+            mostrarProgramas();
+
+            await cargarParticipantes(programa);
+        }
+    );
+
+    $("cerrarParticipantes").addEventListener(
+        "click",
+        () => {
             programaSeleccionado = null;
             participanteSeleccionado = null;
+            participantes = [];
+
+            solicitudParticipantes++;
+            solicitudSeguimiento++;
 
             panelParticipantes.hidden = true;
             panelSeguimiento.hidden = true;
 
             mostrarProgramas();
-            return;
         }
-
-        const programa = obtenerPrograma(idPrograma);
-
-        if (!programa) return;
-
-        programaSeleccionado = idPrograma;
-        participanteSeleccionado = null;
-
-        panelSeguimiento.hidden = true;
-
-        mostrarProgramas();
-        mostrarParticipantes(programa);
-    });
-
-    $("cerrarParticipantes").addEventListener("click", () => {
-        programaSeleccionado = null;
-        participanteSeleccionado = null;
-
-        panelParticipantes.hidden = true;
-        panelSeguimiento.hidden = true;
-
-        mostrarProgramas();
-    });
+    );
 
     // ==========================================
     // SELECCIONAR PARTICIPANTE
     // ==========================================
 
-    contenidoParticipantes.addEventListener("click", evento => {
+    contenidoParticipantes.addEventListener(
+        "click",
+        async evento => {
+            const boton = evento.target.closest(
+                "[data-seguimiento]"
+            );
 
-        const boton = evento.target.closest("[data-seguimiento]");
+            if (!boton) return;
 
-        if (!boton) return;
+            const inscripcion = obtenerParticipante(
+                boton.dataset.seguimiento
+            );
 
-        const programa = obtenerPrograma(programaSeleccionado);
+            if (!inscripcion) return;
 
-        const indice = Number(boton.dataset.seguimiento);
+            participanteSeleccionado = inscripcion.id;
 
-        const participante = obtenerParticipante(
-            programa,
-            indice
+            panelSeguimiento.hidden = false;
+
+            await mostrarSeguimiento();
+
+            panelSeguimiento.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    );
+
+    $("cerrarSeguimiento").addEventListener(
+        "click",
+        () => {
+            participanteSeleccionado = null;
+            solicitudSeguimiento++;
+            panelSeguimiento.hidden = true;
+        }
+    );
+
+    // ==========================================
+    // SEGUIMIENTO DESDE SQLITE
+    // ==========================================
+
+    async function mostrarSeguimiento() {
+        const programa = obtenerPrograma(
+            programaSeleccionado
         );
 
-        if (!participante) return;
-
-        participanteSeleccionado = indice;
-
-        mostrarSeguimiento();
-
-        panelSeguimiento.hidden = false;
-
-        panelSeguimiento.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    });
-
-    $("cerrarSeguimiento").addEventListener("click", () => {
-        participanteSeleccionado = null;
-        panelSeguimiento.hidden = true;
-    });
-
-    // ==========================================
-    // MOSTRAR SEGUIMIENTO
-    // ==========================================
-
-    function mostrarSeguimiento() {
-
-        const programa = obtenerPrograma(programaSeleccionado);
-
-        const participante = obtenerParticipante(
-            programa,
+        const inscripcion = obtenerParticipante(
             participanteSeleccionado
         );
 
-        if (!programa || !participante) return;
+        if (!programa || !inscripcion) return;
 
-        $("subtituloSeguimiento").textContent = programa.nombre;
+        const solicitud = ++solicitudSeguimiento;
+
+        $("subtituloSeguimiento").textContent =
+            programa.nombre;
 
         $("nombreSeguimiento").textContent =
-            participante.nombre;
+            nombreEmprendedor(inscripcion);
 
         $("negocioSeguimiento").textContent =
-            participante.emprendimiento;
+            negocioEmprendedor(inscripcion);
 
         $("progresoSeguimiento").textContent =
-            participante.progreso + "%";
+            porcentaje(inscripcion.progreso) + "%";
 
-        mostrarReportes(programa, participante);
-        mostrarObservaciones(programa, participante);
+        // Campo para actualizar el progreso.
+        prepararControlProgreso(inscripcion);
+
+        $("listaReportes").innerHTML =
+            "<p>Cargando reportes...</p>";
+
+        $("listaObservaciones").innerHTML =
+            "<p>Cargando observaciones...</p>";
+
+        const resultados = await Promise.allSettled([
+            solicitarLaravel(
+                RUTAS.reportes(inscripcion.id)
+            ),
+
+            solicitarLaravel(
+                RUTAS.observaciones(inscripcion.id)
+            )
+        ]);
+
+        if (
+            solicitud !== solicitudSeguimiento ||
+            Number(participanteSeleccionado) !==
+                Number(inscripcion.id)
+        ) {
+            return;
+        }
+
+        const [resultadoReportes, resultadoObservaciones] =
+            resultados;
+
+        if (resultadoReportes.status === "fulfilled") {
+            mostrarReportes(
+                resultadoReportes.value.reportes || []
+            );
+
+        } else {
+            $("listaReportes").innerHTML =
+                "<p>No se pudieron cargar los reportes.</p>";
+
+            mostrarError(resultadoReportes.reason);
+        }
+
+        if (
+            resultadoObservaciones.status === "fulfilled"
+        ) {
+            mostrarObservaciones(
+                resultadoObservaciones.value.observaciones || []
+            );
+
+        } else {
+            $("listaObservaciones").innerHTML =
+                "<p>No se pudieron cargar las observaciones.</p>";
+
+            mostrarError(resultadoObservaciones.reason);
+        }
     }
 
     // ==========================================
-    // REPORTES DE AVANCE DE EJEMPLO
+    // ACTUALIZAR PROGRESO DEL EMPRENDEDOR
     // ==========================================
 
-    function mostrarReportes(programa, participante) {
+    function prepararControlProgreso(inscripcion) {
+        const elemento = $("progresoSeguimiento");
 
-        const reportes = reportesEjemplo.filter(reporte =>
-            reporte.programaId === programa.id &&
-            reporte.emprendedor === participante.nombre
+        if (!elemento) return;
+
+        // Crear el control una sola vez.
+        let contenedor = $("controlActualizarProgreso");
+
+        if (!contenedor) {
+            contenedor = document.createElement("div");
+
+            contenedor.id = "controlActualizarProgreso";
+
+            contenedor.style.marginTop = "12px";
+
+            contenedor.innerHTML = `
+                <label
+                    for="nuevoProgreso"
+                    style="display:block; margin-bottom:8px;">
+                    Actualizar progreso (%)
+                </label>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    flex-wrap:wrap;">
+
+                    <input
+                        type="number"
+                        id="nuevoProgreso"
+                        min="0"
+                        max="100"
+                        step="1"
+                        style="
+                            width:90px;
+                            padding:9px;
+                            border:1px solid #cbd5e1;
+                            border-radius:7px;">
+
+                    <button
+                        type="button"
+                        id="guardarProgreso"
+                        class="boton-primario">
+                        Guardar progreso
+                    </button>
+                </div>
+            `;
+
+            elemento.parentElement.appendChild(
+                contenedor
+            );
+
+            $("guardarProgreso").addEventListener(
+                "click",
+                guardarProgreso
+            );
+        }
+
+        $("nuevoProgreso").value =
+            porcentaje(inscripcion.progreso);
+    }
+
+    async function guardarProgreso() {
+        if (guardandoProgreso) return;
+
+        const inscripcion = obtenerParticipante(
+            participanteSeleccionado
         );
 
-        if (reportes.length === 0) {
+        if (!inscripcion) {
+            mostrarMensaje(
+                "Selecciona un emprendedor."
+            );
+            return;
+        }
+
+        const campo = $("nuevoProgreso");
+
+        if (!campo || campo.value.trim() === "") {
+            mostrarMensaje(
+                "Ingresa el porcentaje de progreso."
+            );
+            return;
+        }
+
+        const nuevoProgreso = Number(campo.value);
+
+        if (
+            !Number.isInteger(nuevoProgreso) ||
+            nuevoProgreso < 0 ||
+            nuevoProgreso > 100
+        ) {
+            mostrarMensaje(
+                "El progreso debe ser un número entero entre 0 y 100."
+            );
+            return;
+        }
+
+        if (!csrf) {
+            mostrarMensaje(
+                "Falta el token de seguridad CSRF."
+            );
+            return;
+        }
+
+        const boton = $("guardarProgreso");
+
+        guardandoProgreso = true;
+        boton.disabled = true;
+        boton.textContent = "Guardando...";
+
+        try {
+            const respuesta = await solicitarLaravel(
+                RUTAS.progreso(inscripcion.id),
+                {
+                    method: "PATCH",
+
+                    body: JSON.stringify({
+                        progreso: nuevoProgreso
+                    })
+                }
+            );
+
+            // Refrescar los datos oficiales desde SQLite.
+            const programa = obtenerPrograma(
+                programaSeleccionado
+            );
+
+            if (programa) {
+                await cargarParticipantes(programa);
+            }
+
+            const actualizada = obtenerParticipante(
+                inscripcion.id
+            );
+
+            if (actualizada) {
+                $("progresoSeguimiento").textContent =
+                    porcentaje(actualizada.progreso) + "%";
+
+                $("nuevoProgreso").value =
+                    porcentaje(actualizada.progreso);
+            }
+
+            mostrarMensaje(
+                respuesta.message ||
+                "Progreso actualizado correctamente en SQLite."
+            );
+
+        } catch (error) {
+            mostrarError(error);
+
+        } finally {
+            guardandoProgreso = false;
+            boton.disabled = false;
+            boton.textContent = "Guardar progreso";
+        }
+    }
+
+    // ==========================================
+    // REPORTES DE AVANCE REALES
+    // ==========================================
+
+    function mostrarReportes(reportes) {
+        if (!reportes.length) {
             $("listaReportes").innerHTML = `
                 <p class="estado-vacio">
                     Este participante todavía no tiene
-                    reportes de avance disponibles en la demostración.
+                    reportes de avance registrados.
                 </p>
             `;
 
             return;
         }
 
-        $("listaReportes").innerHTML = reportes.map(reporte => `
-            <article class="registro-seguimiento">
+        $("listaReportes").innerHTML = reportes.map(
+            reporte => `
+                <article class="registro-seguimiento">
 
-                <div class="registro-cabecera">
-                    <div>
-                        <strong>
-                            ${escaparHTML(programa.nombre)}
-                        </strong>
+                    <div class="registro-cabecera">
+                        <div>
+                            <strong>Reporte de avance</strong>
 
-                        <small>
-                            ${escaparHTML(reporte.fecha)}
-                        </small>
+                            <small>
+                                ${escaparHTML(
+                                    fechaCorta(reporte.fecha)
+                                )}
+                            </small>
+                        </div>
+
+                        <span class="estado-seguimiento pendiente">
+                            Reportado
+                        </span>
                     </div>
 
-                    <span class="estado-seguimiento pendiente">
-                        Reportado
-                    </span>
-                </div>
+                    <div class="registro-campo">
+                        <strong>Avances o logros</strong>
 
-                <div class="registro-campo">
-                    <strong>Avances o logros</strong>
-                    <p>${escaparHTML(reporte.logros)}</p>
-                </div>
+                        <p>
+                            ${escaparHTML(reporte.logros)}
+                        </p>
+                    </div>
 
-                <div class="registro-campo">
-                    <strong>Dificultades</strong>
-                    <p>${escaparHTML(reporte.dificultades)}</p>
-                </div>
+                    <div class="registro-campo">
+                        <strong>Dificultades</strong>
 
-                <div class="registro-campo">
-                    <strong>Apoyo solicitado</strong>
-                    <p>${escaparHTML(reporte.apoyo)}</p>
-                </div>
+                        <p>
+                            ${escaparHTML(
+                                reporte.dificultades ||
+                                "No registradas"
+                            )}
+                        </p>
+                    </div>
 
-            </article>
-        `).join("");
-    }
+                    <div class="registro-campo">
+                        <strong>Apoyo solicitado</strong>
 
-    // ==========================================
-    // HISTORIAL DE OBSERVACIONES
-    // ==========================================
+                        <p>
+                            ${escaparHTML(
+                                reporte.apoyo_solicitado ||
+                                "No registrado"
+                            )}
+                        </p>
+                    </div>
 
-    function mostrarObservaciones(programa, participante) {
-
-        const lista = observaciones.filter(observacion =>
-            observacion.programaId === programa.id &&
-            observacion.emprendedor === participante.nombre
-        ).sort((a, b) =>
-            b.fecha.localeCompare(a.fecha)
-        );
-
-        if (lista.length === 0) {
-            $("listaObservaciones").innerHTML = `
-                <p class="estado-vacio">
-                    Todavía no se han registrado observaciones
-                    para este participante en este programa.
-                </p>
-            `;
-
-            return;
-        }
-
-        $("listaObservaciones").innerHTML = lista.map(
-            observacion => {
-
-                const claseEstado =
-                    observacion.estado === "revisado"
-                        ? "revisado"
-                        : observacion.estado === "requiere apoyo"
-                            ? "apoyo"
-                            : "pendiente";
-
-                return `
-                    <article class="registro-seguimiento">
-
-                        <div class="registro-cabecera">
-                            <div>
-                                <strong>
-                                    ${escaparHTML(observacion.tipo)}
-                                </strong>
-
-                                <small>
-                                    ${escaparHTML(observacion.fecha)}
-                                    — Ana Instructora
-                                </small>
-                            </div>
-
-                            <span class="estado-seguimiento
-                                ${claseEstado}">
-                                ${escaparHTML(observacion.estado)}
-                            </span>
-                        </div>
-
-                        <div class="registro-campo">
-                            <strong>Observaciones y recomendaciones</strong>
-                            <p>${escaparHTML(observacion.comentario)}</p>
-                        </div>
-
-                    </article>
-                `;
-            }
+                </article>
+            `
         ).join("");
     }
 
     // ==========================================
-    // ABRIR MODAL DE OBSERVACIÓN
+    // OBSERVACIONES REALES DESDE SQLITE
     // ==========================================
 
-    $("abrirObservacion").addEventListener("click", () => {
+    function mostrarObservaciones(observaciones) {
+        if (!observaciones.length) {
+            $("listaObservaciones").innerHTML = `
+                <p class="estado-vacio">
+                    Todavía no se han registrado
+                    observaciones para este participante.
+                </p>
+            `;
 
-        const programa = obtenerPrograma(programaSeleccionado);
-
-        const participante = obtenerParticipante(
-            programa,
-            participanteSeleccionado
-        );
-
-        if (!programa || !participante) {
-            mostrarMensaje("Selecciona un participante.");
-            return;
-        }
-
-        formObservacion.reset();
-
-        $("fechaObservacion").value = fechaLocal();
-        $("fechaObservacion").max = fechaLocal();
-
-        modalObservacion.showModal();
-    });
-
-    $("cancelarObservacion").addEventListener("click", () => {
-        modalObservacion.close();
-    });
-
-    // ==========================================
-    // GUARDAR OBSERVACIÓN
-    // ==========================================
-
-    formObservacion.addEventListener("submit", evento => {
-
-        evento.preventDefault();
-
-        const programa = obtenerPrograma(programaSeleccionado);
-
-        const participante = obtenerParticipante(
-            programa,
-            participanteSeleccionado
-        );
-
-        if (!programa || !participante) {
-            mostrarMensaje("No se encontró el participante.");
-            return;
-        }
-
-        const fecha = $("fechaObservacion").value;
-        const tipo = $("tipoObservacion").value;
-        const comentario =
-            $("comentarioObservacion").value.trim();
-
-        const estado = $("estadoObservacion").value;
-
-        const tiposValidos = [
-            "revision",
-            "asesoria",
-            "llamada",
-            "visita"
-        ];
-
-        const estadosValidos = [
-            "revisado",
-            "requiere apoyo",
-            "pendiente"
-        ];
-
-        if (
-            !fecha ||
-            !tiposValidos.includes(tipo) ||
-            !comentario ||
-            !estadosValidos.includes(estado)
-        ) {
-            mostrarMensaje("Completa todos los campos.");
-            return;
-        }
-
-        if (fecha > fechaLocal()) {
-            mostrarMensaje("La fecha no puede ser futura.");
             return;
         }
 
@@ -764,56 +919,241 @@ document.addEventListener("DOMContentLoaded", () => {
             visita: "Visita"
         };
 
-        const nuevaObservacion = {
-            id: String(Date.now()) + "-" +
-                Math.random().toString(36).slice(2),
+        $("listaObservaciones").innerHTML =
+            observaciones.map(observacion => {
+                const claseEstado =
+                    observacion.estado === "revisado"
+                        ? "revisado"
+                        : observacion.estado === "requiere apoyo"
+                            ? "apoyo"
+                            : "pendiente";
 
-            programaId: programa.id,
-            emprendedor: participante.nombre,
-            fecha: fecha,
-            tipo: nombresTipo[tipo],
-            comentario: comentario,
-            estado: estado
-        };
+                const tipo =
+                    nombresTipo[observacion.tipo] ||
+                    observacion.tipo;
 
-        observaciones.push(nuevaObservacion);
+                return `
+                    <article class="registro-seguimiento">
 
-        if (!guardarObservaciones()) {
-            observaciones.pop();
-            return;
+                        <div class="registro-cabecera">
+                            <div>
+                                <strong>
+                                    ${escaparHTML(tipo)}
+                                </strong>
+
+                                <small>
+                                    ${escaparHTML(
+                                        fechaCorta(
+                                            observacion.fecha
+                                        )
+                                    )}
+                                </small>
+                            </div>
+
+                            <span class="estado-seguimiento
+                                ${claseEstado}">
+                                ${escaparHTML(
+                                    observacion.estado
+                                )}
+                            </span>
+                        </div>
+
+                        <div class="registro-campo">
+                            <strong>
+                                Observaciones y recomendaciones
+                            </strong>
+
+                            <p>
+                                ${escaparHTML(
+                                    observacion.comentario
+                                )}
+                            </p>
+                        </div>
+
+                    </article>
+                `;
+            }).join("");
+    }
+
+    // ==========================================
+    // ABRIR MODAL DE OBSERVACIONES
+    // ==========================================
+
+    $("abrirObservacion").addEventListener(
+        "click",
+        () => {
+            const inscripcion = obtenerParticipante(
+                participanteSeleccionado
+            );
+
+            if (!inscripcion) {
+                mostrarMensaje(
+                    "Selecciona un participante."
+                );
+                return;
+            }
+
+            formObservacion.reset();
+
+            $("fechaObservacion").value = fechaLocal();
+            $("fechaObservacion").max = fechaLocal();
+
+            modalObservacion.showModal();
         }
+    );
 
-        mostrarObservaciones(programa, participante);
-
-        modalObservacion.close();
-        formObservacion.reset();
-
-        mostrarMensaje(
-            "Observación guardada correctamente."
-        );
-    });
+    $("cancelarObservacion").addEventListener(
+        "click",
+        () => {
+            if (!guardando) {
+                modalObservacion.close();
+            }
+        }
+    );
 
     // ==========================================
-    // FOOTER
+    // GUARDAR OBSERVACIÓN EN SQLITE
     // ==========================================
 
-    document.querySelectorAll("[data-informativo]")
-        .forEach(enlace => {
+    formObservacion.addEventListener(
+        "submit",
+        async evento => {
+            evento.preventDefault();
 
-            enlace.addEventListener("click", evento => {
+            if (guardando) return;
+
+            const inscripcion = obtenerParticipante(
+                participanteSeleccionado
+            );
+
+            if (!inscripcion) {
+                mostrarMensaje(
+                    "No se encontró la inscripción."
+                );
+                return;
+            }
+
+            const fecha = $("fechaObservacion").value;
+            const tipo = $("tipoObservacion").value;
+
+            const comentario = $(
+                "comentarioObservacion"
+            ).value.trim();
+
+            const estado = $("estadoObservacion").value;
+
+            const tiposValidos = [
+                "revision",
+                "asesoria",
+                "llamada",
+                "visita"
+            ];
+
+            const estadosValidos = [
+                "revisado",
+                "requiere apoyo",
+                "pendiente"
+            ];
+
+            if (
+                !fecha ||
+                !tiposValidos.includes(tipo) ||
+                !comentario ||
+                !estadosValidos.includes(estado)
+            ) {
+                mostrarMensaje(
+                    "Completa correctamente los campos."
+                );
+                return;
+            }
+
+            if (fecha > fechaLocal()) {
+                mostrarMensaje(
+                    "La fecha no puede ser futura."
+                );
+                return;
+            }
+
+            if (comentario.length > 1500) {
+                mostrarMensaje(
+                    "El comentario supera los 1500 caracteres."
+                );
+                return;
+            }
+
+            if (!csrf) {
+                mostrarMensaje(
+                    "Falta el token de seguridad CSRF."
+                );
+                return;
+            }
+
+            const botonGuardar =
+                formObservacion.querySelector(
+                    'button[type="submit"]'
+                );
+
+            guardando = true;
+            botonGuardar.disabled = true;
+
+            try {
+                const respuesta = await solicitarLaravel(
+                    RUTAS.observaciones(inscripcion.id),
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            fecha,
+                            tipo,
+                            comentario,
+                            estado
+                        })
+                    }
+                );
+
+                modalObservacion.close();
+                formObservacion.reset();
+
+                mostrarMensaje(
+                    respuesta.message ||
+                    "Observación registrada correctamente en SQLite."
+                );
+
+                await mostrarSeguimiento();
+
+            } catch (error) {
+                mostrarError(error);
+
+            } finally {
+                guardando = false;
+                botonGuardar.disabled = false;
+            }
+        }
+    );
+
+    // ==========================================
+    // FOOTER INFORMATIVO
+    // ==========================================
+
+    document.querySelectorAll(
+        "[data-informativo]"
+    ).forEach(enlace => {
+        enlace.addEventListener(
+            "click",
+            evento => {
                 evento.preventDefault();
 
                 alert(
                     `La sección ${enlace.dataset.informativo} ` +
                     "está pendiente de implementar."
                 );
-            });
-        });
+            }
+        );
+    });
 
     // ==========================================
     // CARGA INICIAL
     // ==========================================
 
-    mostrarProgramas();
-
+    cargarProgramas();
 });

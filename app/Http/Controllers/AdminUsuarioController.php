@@ -15,7 +15,8 @@ class AdminUsuarioController extends Controller
             auth()->check()
             && auth()->user()->rol === 'administrador'
             && auth()->user()->activo,
-            403
+            403,
+            'No tienes permiso para administrar usuarios.'
         );
     }
 
@@ -24,11 +25,7 @@ class AdminUsuarioController extends Controller
         $this->verificarAdministrador();
 
         $datos = $request->validate([
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
+            'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
@@ -64,7 +61,7 @@ class AdminUsuarioController extends Controller
             ->route('administrador')
             ->with(
                 'success',
-                'Usuario creado correctamente. Ya puede iniciar sesión con sus credenciales.'
+                'Usuario creado correctamente en SQLite.'
             );
     }
 
@@ -73,24 +70,35 @@ class AdminUsuarioController extends Controller
         $this->verificarAdministrador();
 
         if ($usuario->id === auth()->id()) {
+            $mensaje = 'No puedes desactivar tu propia cuenta.';
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'message' => $mensaje,
+                ], 422);
+            }
+
             return redirect()
                 ->route('administrador')
-                ->with(
-                    'error',
-                    'No puedes desactivar tu propia cuenta.'
-                );
+                ->with('error', $mensaje);
         }
 
         $usuario->activo = !$usuario->activo;
         $usuario->save();
 
+        $mensaje = $usuario->activo
+            ? 'Usuario activado correctamente.'
+            : 'Usuario desactivado correctamente.';
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => $mensaje,
+                'activo' => $usuario->activo,
+            ]);
+        }
+
         return redirect()
             ->route('administrador')
-            ->with(
-                'success',
-                $usuario->activo
-                    ? 'Usuario activado correctamente.'
-                    : 'Usuario desactivado correctamente.'
-            );
+            ->with('success', $mensaje);
     }
 }
